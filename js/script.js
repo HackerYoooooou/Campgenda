@@ -19,7 +19,7 @@ userInput.retrieveInputValues = function() {
     userInput.province = $('input[name=province]').val();
     userInput.city = $('input[name=city]').val();
     userInput.radius = $('input[name=radius]').val();
-    userInput.activity = $('input[name=activity]').val();
+    userInput.activity = $('select[name=activity]').val();
     userInput.address = $('input[name=address]').val();
     userInput.getCoordinates(userInput.address, userInput.city, userInput.province);
     // userInput.getLocationBasedOnUserInput(userInput.lat, userInput.long, userInput.radius, userInput.activity);
