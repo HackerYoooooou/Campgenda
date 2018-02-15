@@ -62,11 +62,14 @@ userInput.getLocationBasedOnUserInput = (province, city, radius, activity) => {
 // to print attributes of each element of locations array on the screen
 userInput.displayOptions = (locations) => {
     locations.forEach((location) => {
-        console.log(location.name);
-        const name = $('<button class=option>').text(location.name);
-        const direction = $('<p>').text(location.directions);
-        const container = $('.locationOptions').append(name, direction);
-        $('body').append(container);
+        console.log(location);
+        location.activities.forEach((activity) =>{
+            console.log(activity);
+            const name = $('<button class=option>').text(activity.name);
+            const direction = $('<p>').text(activity.description);
+            const container = $('.locationOptions').append(name, direction);
+            $('body').append(container);
+        });
     });
 }
 
@@ -126,12 +129,31 @@ userInput.showBirds = function() {
     });
 }
 
+// BIRDS SOUNDS API
+
+const getBirdSoundsBasedOnName = (birdName) => {
+    return $.ajax({
+        url: 'https://www.xeno-canto.org/api/2/recordings',
+        method: 'GET',
+        dataType: 'jsonp',
+        data: {
+            format: 'json',
+            query: "loc:Toronto"
+        }
+    }).then(function(res){
+        console.log(res);
+    });
+}
+
+
+
 
 userInput.init = function () {
     
 }
 
 $(function(){
+    getBirdSoundsBasedOnName();
     userInput.showBirds();
     // userInput.init();
     userInput.initFirebase();
