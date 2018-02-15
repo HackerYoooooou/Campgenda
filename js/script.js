@@ -43,6 +43,9 @@ userInput.getLocationBasedOnUserInput = (province, city, radius, activity) => {
         }
     }).then(function(res){
         const data = res.places;
+        userInput.destinationLocation = res.places[0].city;
+        console.log(res.places);
+        console.log(userInput.destinationLocation);
         userInput.displayOptions(data);
     });
 }
@@ -79,8 +82,8 @@ userInput.retrieveLocationCode = function() {
     dbRef.on('value', (item) => {
         const codeObject = item.val();
         for (let key in codeObject) {
-            console.log(codeObject[key]);
-            if (codeObject[key]["country-code"] === 'CA' && codeObject[key]["name"] === userInput.city ) {
+            // console.log(codeObject[key]);
+            if (codeObject[key]["country-code"] === 'CA' && codeObject[key]["name"] === userInput.destinationLocation ) {
                     console.log(codeObject[key]);
                     let locationCode = codeObject[key]["subnational2-code"];
                     getBirdsBasedOnLocation(locationCode);
@@ -133,12 +136,15 @@ userInput.showBirds = function() {
 
 const getBirdSoundsBasedOnName = (birdName) => {
     return $.ajax({
-        url: 'https://www.xeno-canto.org/api/2/recordings',
+        url: 'http://proxy.hackeryou.com',
         method: 'GET',
-        dataType: 'jsonp',
+        dataType: 'json',
         data: {
-            format: 'json',
-            query: "loc:Toronto"
+            reqUrl: 'https://www.xeno-canto.org/api/2/recordings',
+            params: {
+            //  query: 'loc:Toronto'
+                query: 'White-crowned Sparrow'
+            }
         }
     }).then(function(res){
         console.log(res);
@@ -163,5 +169,6 @@ $(function(){
         userInput.retrieveInputValues();
         // userInput.showBirds();
         // userInput.retrieveLocationCode();
+        getBirdSoundsBasedOnName('Owl');
     })
 });
