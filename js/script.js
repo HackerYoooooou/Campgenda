@@ -20,7 +20,9 @@ userInput.retrieveInputValues = function() {
     userInput.city = $('input[name=city]').val();
     userInput.radius = $('input[name=radius]').val();
     userInput.activity = $('input[name=activity]').val();
+    userInput.address = $('input[name=address]').val();
     userInput.getLocationBasedOnUserInput(userInput.province, userInput.city, userInput.radius, userInput.activity);
+    userInput.getCoordinates(userInput.address, userInput.city, userInput.province);
 }
 
 // Create AJAX request to retrieve location information based on City
@@ -49,6 +51,24 @@ userInput.getLocationBasedOnUserInput = (province, city, radius, activity) => {
         userInput.displayOptions(data);
     });
 }
+
+// Create AJAX request to retrieve coordinates based on address
+
+
+userInput.getCoordinates = (address, city, province) => {
+    return $.ajax({
+        url: "https://maps.googleapis.com/maps/api/geocode/json?",
+        method: 'GET',
+        dataType: 'json',
+        data: {
+            address: `${address}, ${city}, ${province}`,
+            key: 'AIzaSyDNBpAAUuUkRyioDLQUQW_DZYIb1PiY85Q'
+        }
+    }).then(function (res) {
+        userInput.lat = res.results[0]['geometry']['location']['lat'];
+        userInput.lng = res.results[0]['geometry']['location']['lng'];
+    })
+};
 
 // Create async function -DISREGARD (NOT WORKING/ HERE FOR FUTURE REFERENCE)
 // to wait for the promise and call display function when promise is recieved
@@ -194,5 +214,6 @@ $(function(){
         // userInput.showBirds();
         // userInput.retrieveLocationCode();
         // getBirdSoundsBasedOnName('Owl');
+
     })
 });
