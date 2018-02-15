@@ -14,47 +14,19 @@ userInput.initFirebase = () => {
 }
 
 
-// Retrieve User Input
+// Retrieve User Input and call GoogleMaps API and TrailAPI
 userInput.retrieveInputValues = function() {
     userInput.province = $('input[name=province]').val();
     userInput.city = $('input[name=city]').val();
     userInput.radius = $('input[name=radius]').val();
     userInput.activity = $('input[name=activity]').val();
     userInput.address = $('input[name=address]').val();
-    userInput.getLocationBasedOnUserInput(userInput.province, userInput.city, userInput.radius, userInput.activity);
     userInput.getCoordinates(userInput.address, userInput.city, userInput.province);
+    // userInput.getLocationBasedOnUserInput(userInput.lat, userInput.long, userInput.radius, userInput.activity);
+    // getData();
 }
 
-// Create AJAX request to retrieve location information based on City
-
-userInput.getLocationBasedOnUserInput = (province, city, radius, activity) => {
-    return $.ajax({
-        url: 'https://trailapi-trailapi.p.mashape.com/',
-        method: 'GET',
-        dataType: 'json',
-        headers: {
-            'X-Mashape-Key': 'ggHiGgB9CKmshtveiFCqkApU62aYp1E7G75jsn4Uwr3THLo7UM'
-        },
-        data: {
-            q: {
-                state_cont: province,
-                city_cont: city,
-                radius: radius,
-                activities_activity_type_name_eq: activity
-            }
-        }
-    }).then(function(res){
-        const data = res.places;
-        userInput.destinationLocations = res.places;
-        console.log(res.places);
-        console.log(userInput.destinationLocation);
-        userInput.displayOptions(data);
-    });
-}
-
-// Create AJAX request to retrieve coordinates based on address
-
-
+// Create AJAX request to retrieve coordinates based on user's address
 userInput.getCoordinates = (address, city, province) => {
     return $.ajax({
         url: "https://maps.googleapis.com/maps/api/geocode/json?",
@@ -64,11 +36,71 @@ userInput.getCoordinates = (address, city, province) => {
             address: `${address}, ${city}, ${province}`,
             key: 'AIzaSyDNBpAAUuUkRyioDLQUQW_DZYIb1PiY85Q'
         }
-    }).then(function (res) {
+    })
+    .then(function (res) {
         userInput.lat = res.results[0]['geometry']['location']['lat'];
         userInput.lng = res.results[0]['geometry']['location']['lng'];
+        console.log(userInput.lat, userInput.lng);
+        userInput.getLocationBasedOnUserInput(userInput.lat, userInput.lng, userInput.radius, userInput.activity);
     })
 };
+
+// async function getData() {
+//     const locationCoordinates = await userInput.getCoordinates(userInput.address, userInput.city, userInput.province);
+//     userInput.lat = locationCoordinates.results[0]['geometry']['location']['lat'];
+//     userInput.lng = locationCoordinates.results[0]['geometry']['location']['lng'];
+//     console.log(`Here are the coordinates: ${userInput.lat}, ${userInput.lng}`);
+
+
+//     const locationsList = await userInput.getLocationBasedOnUserInput(43.6567919, -79.4609322, 5, 'hiking');
+
+//     userInput.displayOptions(locationsList.places);
+// };
+
+// Create AJAX request to retrieve location information based on latitude, longitude, radius and activity type
+userInput.getLocationBasedOnUserInput = (lat, long, radius, activity) => {
+    return $.ajax({
+        url: 'https://trailapi-trailapi.p.mashape.com/',
+        method: 'GET',
+        dataType: 'json',
+        headers: {
+            'X-Mashape-Key': 'ggHiGgB9CKmshtveiFCqkApU62aYp1E7G75jsn4Uwr3THLo7UM'
+        },
+        data: {
+            lat: lat,
+            lon: long,
+            radius: radius,
+            q: {
+                activities_activity_type_name_eq: activity
+            }
+        }
+    })
+    .then(function(res){
+        const data = res.places;
+        userInput.destinationLocations = res.places;
+        console.log(res.places);
+        console.log(userInput.destinationLocation);
+        userInput.displayOptions(data);
+    });
+}
+
+// // Create AJAX request to retrieve coordinates based on address
+
+
+// userInput.getCoordinates = (address, city, province) => {
+//     return $.ajax({
+//         url: "https://maps.googleapis.com/maps/api/geocode/json?",
+//         method: 'GET',
+//         dataType: 'json',
+//         data: {
+//             address: `${address}, ${city}, ${province}`,
+//             key: 'AIzaSyDNBpAAUuUkRyioDLQUQW_DZYIb1PiY85Q'
+//         }
+//     }).then(function (res) {
+//         userInput.lat = res.results[0]['geometry']['location']['lat'];
+//         userInput.lng = res.results[0]['geometry']['location']['lng'];
+//     })
+// };
 
 // Create async function -DISREGARD (NOT WORKING/ HERE FOR FUTURE REFERENCE)
 // to wait for the promise and call display function when promise is recieved
