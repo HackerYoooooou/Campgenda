@@ -63,14 +63,12 @@ userInput.getLocationBasedOnUserInput = (province, city, radius, activity) => {
 userInput.displayOptions = (locations) => {
     locations.forEach((location) => {
         console.log(location.name);
-        const name = $('<h2>').text(location.name);
+        const name = $('<button class=option>').text(location.name);
         const direction = $('<p>').text(location.directions);
-        const container = $('<div>').append(name, direction);
+        const container = $('.locationOptions').append(name, direction);
         $('body').append(container);
     });
 }
-
-
 
 // Create function to retrieve location code from firebase based on user input
 userInput.retrieveLocationCode = function() {
@@ -81,11 +79,23 @@ userInput.retrieveLocationCode = function() {
             console.log(codeObject[key]);
             if (codeObject[key]["country-code"] === 'CA' && codeObject[key]["name"] === userInput.city ) {
                     console.log(codeObject[key]);
+                    let locationCode = codeObject[key]["subnational2-code"];
+                    getBirdsBasedOnLocation(locationCode);
                 }
+            
         }
     });
 }
-    // && codeObject[key].name == userInput.city
+
+
+userInput.displayBirdsInRegion = (birds) => {
+    birds.forEach((bird) => {
+        console.log(bird.comName);
+        const name = $('<h3>').text(bird.comName);
+        const container = $('<div>').append(name);
+        $('body').append(container);
+    });
+}
 
 // BIRDS API
 const getBirdsBasedOnLocation = (sightSpot) => {
@@ -101,13 +111,19 @@ const getBirdsBasedOnLocation = (sightSpot) => {
             r: sightSpot,
             fmt: 'json'
         }
+    }).then(function(res){
+        console.log(res);
+        userInput.displayBirdsInRegion(res);
     });
 }
 
-let BirdLoc = 'CA-ON-TO';
-async function getDataAboutBirds() {
-    const birds = await getBirdsBasedOnLocation(BirdLoc);
-    console.log(`Here are birdies: ${birds}`);
+
+// function to trigger retrieveLocationCode function on click
+userInput.showBirds = function() {
+    $('.locationOptions').on('click', 'button.option', function(){
+        console.log(this);
+        userInput.retrieveLocationCode();
+    });
 }
 
 
@@ -116,15 +132,14 @@ userInput.init = function () {
 }
 
 $(function(){
+    userInput.showBirds();
     // userInput.init();
     userInput.initFirebase();
-    // userInput.retrieveLocationCode();
     $('form').on('submit', function(event){
-        
         event.preventDefault();
-        // getData();
+        // Retrieve user input and call TrailAPI & DIsplay Results on the page
         userInput.retrieveInputValues();
-        userInput.retrieveLocationCode();
-        getDataAboutBirds();
+        // userInput.showBirds();
+        // userInput.retrieveLocationCode();
     })
 });
