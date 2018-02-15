@@ -144,8 +144,21 @@ userInput.showBirds = function() {
 // Function to display sounds
 userInput.displayBirdSounds = (recordings) => {
         const birdName = $('<p>').text(recordings[0].en);
-        const soundUrl = $('<p>').text(recordings[0].url);
-        const soundContainer = $('<div>').append(birdName, soundUrl);
+        // const soundContainer = $('<div>').append(birdName);
+        // const soundUrl = $('<audio>').attr('src',recordings[0].url);
+        // Add Audio element to the page
+        // <iframe src='https://www.xeno-canto.org/371524/embed?simple=1' scrolling='no' frameborder='0' width='340' height='115'></iframe>
+        const birdSound = $('<iframe>').attr('src', `${recordings[0].url}/embed?simple=1`);
+    
+        // let birdSound = document.createElement('audio');
+        // birdSound.setAttribute('controls', true);
+        // let audioSource = document.createElement('source');
+        // audioSource.src = `${recordings[0].url}/embed`;
+        // birdSound.appendChild(audioSource)
+        const soundContainer = $('<div>').append(birdName, birdSound);
+
+
+        
         $('body').append(soundContainer);
     // recordings.forEach((recording) => {
     //     const soundUrl = $('<p>').text(recording.url);
