@@ -43,7 +43,7 @@ userInput.getLocationBasedOnUserInput = (province, city, radius, activity) => {
         }
     }).then(function(res){
         const data = res.places;
-        userInput.destinationLocation = res.places[0].city;
+        userInput.destinationLocations = res.places;
         console.log(res.places);
         console.log(userInput.destinationLocation);
         userInput.displayOptions(data);
@@ -64,26 +64,27 @@ userInput.getLocationBasedOnUserInput = (province, city, radius, activity) => {
 // Create function local to userInput object
 // to print attributes of each element of locations array on the screen
 userInput.displayOptions = (locations) => {
-    locations.forEach((location) => {
+    locations.forEach((location,i) => {
         console.log(location);
         location.activities.forEach((activity) =>{
             console.log(activity);
-            const name = $('<button class=option>').text(activity.name);
+            const name = $(`<button class=option id="${i}">`).text(activity.name);
             const direction = $('<p>').text(activity.description);
             const container = $('.locationOptions').append(name, direction);
             $('body').append(container);
         });
+      
     });
 }
 
 // Create function to retrieve location code from firebase based on user input
-userInput.retrieveLocationCode = function() {
+userInput.retrieveLocationCode = function(arrayNumber) {
     const dbRef = firebase.database().ref('/codes');
     dbRef.on('value', (item) => {
         const codeObject = item.val();
         for (let key in codeObject) {
             // console.log(codeObject[key]);
-            if (codeObject[key]["country-code"] === 'CA' && codeObject[key]["name"] === userInput.destinationLocation ) {
+            if (codeObject[key]["country-code"] === 'CA' && codeObject[key]["name"] === arrayNumber ) {
                     console.log(codeObject[key]);
                     let locationCode = codeObject[key]["subnational2-code"];
                     getBirdsBasedOnLocation(locationCode);
@@ -100,6 +101,8 @@ userInput.displayBirdsInRegion = (birds) => {
         const name = $('<h3>').text(bird.comName);
         const container = $('<div>').append(name);
         $('body').append(container);
+        // Call Xeno API to retrieve a sound for each bird
+        getBirdSoundsBasedOnName(bird.comName);
     });
 }
 
@@ -128,8 +131,27 @@ const getBirdsBasedOnLocation = (sightSpot) => {
 userInput.showBirds = function() {
     $('.locationOptions').on('click', 'button.option', function(){
         console.log(this);
-        userInput.retrieveLocationCode();
+        const indexOfButton = $(this).attr('id');
+        userInput.destinationLocations.forEach((destinationLocation) => {
+            let indexOfArrayElement = userInput.destinationLocations.indexOf(destinationLocation);
+            if (indexOfArrayElement = indexOfButton) {
+                userInput.retrieveLocationCode(destinationLocation.city);
+            }
+        });
     });
+}
+
+// Function to display sounds
+userInput.displayBirdSounds = (recordings) => {
+        const birdName = $('<p>').text(recordings[0].en);
+        const soundUrl = $('<p>').text(recordings[0].url);
+        const soundContainer = $('<div>').append(birdName, soundUrl);
+        $('body').append(soundContainer);
+    // recordings.forEach((recording) => {
+    //     const soundUrl = $('<p>').text(recording.url);
+    //     const soundContainer = $('<div>').append(soundUrl);
+    //     $('body').append(soundContainer);
+    // });
 }
 
 // BIRDS SOUNDS API
@@ -143,11 +165,13 @@ const getBirdSoundsBasedOnName = (birdName) => {
             reqUrl: 'https://www.xeno-canto.org/api/2/recordings',
             params: {
             //  query: 'loc:Toronto'
-                query: 'White-crowned Sparrow'
+                query: birdName
             }
         }
     }).then(function(res){
-        console.log(res);
+        console.log(res.recordings);
+        recordingsArray = res.recordings;
+        userInput.displayBirdSounds(recordingsArray);
     });
 }
 
@@ -159,7 +183,7 @@ userInput.init = function () {
 }
 
 $(function(){
-    getBirdSoundsBasedOnName();
+    // getBirdSoundsBasedOnName();
     userInput.showBirds();
     // userInput.init();
     userInput.initFirebase();
@@ -169,6 +193,6 @@ $(function(){
         userInput.retrieveInputValues();
         // userInput.showBirds();
         // userInput.retrieveLocationCode();
-        getBirdSoundsBasedOnName('Owl');
+        // getBirdSoundsBasedOnName('Owl');
     })
 });
