@@ -198,6 +198,9 @@ main {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  -webkit-box-pack: justify;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
   height: 60vh; }
 
 section {
@@ -213,6 +216,8 @@ aside {
   -webkit-box-align: end;
   -ms-flex-align: end;
   align-items: flex-end; }
+  aside img {
+    min-width: 274px; }
 
 form {
   display: -webkit-box;

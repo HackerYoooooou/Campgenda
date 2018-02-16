@@ -13,6 +13,7 @@ main {
     margin: 0 auto;
     padding: 50px 0;
     display: flex;
+    justify-content: space-between;
 
     // REMOVE
     height: 60vh;
@@ -26,4 +27,7 @@ aside {
     flex-basis: 25%;
     display: flex;
     align-items: flex-end;
+    img {
+        min-width: 274px;
+    }
 }

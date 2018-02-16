@@ -45,6 +45,7 @@ userInput.getCoordinates = (address, city, province) => {
     })
 };
 
+// Create async function -DISREGARD (NOT WORKING/ HERE FOR FUTURE REFERENCE)
 // async function getData() {
 //     const locationCoordinates = await userInput.getCoordinates(userInput.address, userInput.city, userInput.province);
 //     userInput.lat = locationCoordinates.results[0]['geometry']['location']['lat'];
@@ -84,48 +85,31 @@ userInput.getLocationBasedOnUserInput = (lat, long, radius, activity) => {
     });
 }
 
-// // Create AJAX request to retrieve coordinates based on address
-
-
-// userInput.getCoordinates = (address, city, province) => {
-//     return $.ajax({
-//         url: "https://maps.googleapis.com/maps/api/geocode/json?",
-//         method: 'GET',
-//         dataType: 'json',
-//         data: {
-//             address: `${address}, ${city}, ${province}`,
-//             key: 'AIzaSyDNBpAAUuUkRyioDLQUQW_DZYIb1PiY85Q'
-//         }
-//     }).then(function (res) {
-//         userInput.lat = res.results[0]['geometry']['location']['lat'];
-//         userInput.lng = res.results[0]['geometry']['location']['lng'];
-//     })
-// };
-
-// Create async function -DISREGARD (NOT WORKING/ HERE FOR FUTURE REFERENCE)
-// to wait for the promise and call display function when promise is recieved
-// userInput.getLocationsData = () => {
-    // async function getData() {
-    //     userInput.retrieveInputValues(); 
-    //     const returnedLocations = await userInput.getLocationBasedOnUserInput(userInput.province, userInput.city, userInput.radius, userInput.activity);
-    //     console.log(returnedLocations.places);
-    //     userInput.displayOptions(returnedLocations.places);
-    // }
-// }
 
 // Create function local to userInput object
 // to print attributes of each element of locations array on the screen
 userInput.displayOptions = (locations) => {
+    let activitiesArray = [];
     locations.forEach((location,i) => {
         console.log(location);
         location.activities.forEach((activity) =>{
+            activitiesArray.push(activity);
             console.log(activity);
-            const name = $(`<button class=option id="${i}">`).text(activity.name);
-            const direction = $('<p>').text(activity.description);
-            const container = $('.locationOptions').append(name, direction);
-            $('.hiking').append(container);
         });
+        // Print array of activities
+        console.log(activitiesArray);
     });
+    activitiesArray.sort(function(a,b){
+        return parseFloat(b.rating) - parseFloat(a.rating) || b.length - a.length;
+    });
+    for (i=0; i<4;i++) {
+        const name = $(`<button class=option id="${i}">`).text(activitiesArray[i].name);
+        const direction = $('<p>').text(activitiesArray[i].description);
+        const rating = $('<p>').text(`Trail Raiting is ${activitiesArray[i].rating}`);
+        const length = $('<p>').text(`Trail Length is ${activitiesArray[i].length} km`);
+        const container = $('.locationOptions').append(name, rating, length, direction);
+        $('.hiking').append(container);
+    }
 }
 
 // Create function to retrieve location code from firebase based on user input
