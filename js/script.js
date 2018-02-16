@@ -18,8 +18,8 @@ userInput.initFirebase = () => {
 userInput.retrieveInputValues = function() {
     userInput.province = $('input[name=province]').val();
     userInput.city = $('input[name=city]').val();
-    userInput.radius = $('input[name=radius]').val();
-    userInput.activity = $('input[name=activity]').val();
+    userInput.radius = $('select[name=radius]').val();
+    userInput.activity = $('select[name=activity]').val();
     userInput.address = $('input[name=address]').val();
     userInput.getCoordinates(userInput.address, userInput.city, userInput.province);
     // userInput.getLocationBasedOnUserInput(userInput.lat, userInput.long, userInput.radius, userInput.activity);
@@ -45,6 +45,7 @@ userInput.getCoordinates = (address, city, province) => {
     })
 };
 
+// Create async function -DISREGARD (NOT WORKING/ HERE FOR FUTURE REFERENCE)
 // async function getData() {
 //     const locationCoordinates = await userInput.getCoordinates(userInput.address, userInput.city, userInput.province);
 //     userInput.lat = locationCoordinates.results[0]['geometry']['location']['lat'];
@@ -71,62 +72,47 @@ userInput.getLocationBasedOnUserInput = (lat, long, radius, activity) => {
             lon: long,
             radius: radius,
             q: {
-                activities_activity_type_name_eq: activity
+                activities_activity_type_name_eq: activity,
+                country_cont: 'Canada'
             }
         }
     })
     .then(function(res){
         const data = res.places;
         userInput.destinationLocations = res.places;
-        console.log(res.places);
-        console.log(userInput.destinationLocation);
+        // console.log(res.places);
+        // console.log(userInput.destinationLocation);
         userInput.displayOptions(data);
     });
 }
 
-// // Create AJAX request to retrieve coordinates based on address
-
-
-// userInput.getCoordinates = (address, city, province) => {
-//     return $.ajax({
-//         url: "https://maps.googleapis.com/maps/api/geocode/json?",
-//         method: 'GET',
-//         dataType: 'json',
-//         data: {
-//             address: `${address}, ${city}, ${province}`,
-//             key: 'AIzaSyDNBpAAUuUkRyioDLQUQW_DZYIb1PiY85Q'
-//         }
-//     }).then(function (res) {
-//         userInput.lat = res.results[0]['geometry']['location']['lat'];
-//         userInput.lng = res.results[0]['geometry']['location']['lng'];
-//     })
-// };
-
-// Create async function -DISREGARD (NOT WORKING/ HERE FOR FUTURE REFERENCE)
-// to wait for the promise and call display function when promise is recieved
-// userInput.getLocationsData = () => {
-    // async function getData() {
-    //     userInput.retrieveInputValues(); 
-    //     const returnedLocations = await userInput.getLocationBasedOnUserInput(userInput.province, userInput.city, userInput.radius, userInput.activity);
-    //     console.log(returnedLocations.places);
-    //     userInput.displayOptions(returnedLocations.places);
-    // }
-// }
 
 // Create function local to userInput object
 // to print attributes of each element of locations array on the screen
 userInput.displayOptions = (locations) => {
+    let activitiesArray = [];
     locations.forEach((location,i) => {
-        console.log(location);
+        // console.log(location);
         location.activities.forEach((activity) =>{
-            console.log(activity);
-            const name = $(`<button class=option id="${i}">`).text(activity.name);
-            const direction = $('<p>').text(activity.description);
-            const container = $('.locationOptions').append(name, direction);
-            $('body').append(container);
+            activitiesArray.push(activity);
+            // console.log(activity);
         });
-      
+        // Print array of activities
+        // console.log(activitiesArray);
     });
+    activitiesArray.sort(function(a,b){
+        return parseFloat(b.rating) - parseFloat(a.rating) || b.length - a.length;
+    });
+    console.log(activitiesArray);
+    for (i=0; i<100;i++) {
+        const name = $(`<button class=option id="${activitiesArray[i].place_id}">`).text(activitiesArray[i].name);
+        const direction = $('<p>').text(activitiesArray[i].description);
+        const rating = $('<p>').text(`Trail Raiting is ${activitiesArray[i].rating}`);
+        const length = $('<p>').text(`Trail Length is ${activitiesArray[i].length} km`);
+        const trailContainer = $(`<div class=itemContainer${activitiesArray[i].place_id}>`).append(name, rating, length, direction);
+        const container = $('.locationOptions').append(trailContainer);
+        $('.hiking').append(container);
+    }
 }
 
 // Create function to retrieve location code from firebase based on user input
@@ -134,25 +120,28 @@ userInput.retrieveLocationCode = function(arrayNumber) {
     const dbRef = firebase.database().ref('/codes');
     dbRef.on('value', (item) => {
         const codeObject = item.val();
-        for (let key in codeObject) {
-            // console.log(codeObject[key]);
-            if (codeObject[key]["country-code"] === 'CA' && codeObject[key]["name"] === arrayNumber ) {
-                    console.log(codeObject[key]);
-                    let locationCode = codeObject[key]["subnational2-code"];
-                    getBirdsBasedOnLocation(locationCode);
+        window.dataObj = codeObject;
+        console.log(arrayNumber);
+        // console.log(codeObject);
+            for (let key in codeObject) {
+                // console.log(codeObject);
+                if (codeObject[key]["country-code"] === 'CA' && codeObject[key]["name"] === arrayNumber ) {
+                        console.log(codeObject[key]);
+                        let locationCode = codeObject[key]["subnational2-code"];
+                        getBirdsBasedOnLocation(locationCode);
                 }
-            
-        }
+            }
     });
 }
 
 
 userInput.displayBirdsInRegion = (birds) => {
-    birds.forEach((bird) => {
+    birds.forEach((bird, i) => {
         console.log(bird.comName);
         const name = $('<h3>').text(bird.comName);
-        const container = $('<div>').append(name);
-        $('body').append(container);
+        const birdContainer = $(`<div class="${bird.comName.replace(' ','-').toLowerCase()}">`).append(name);
+        // console.log(`.itemContainer${userInput.indexOfButton}`);
+        $(`.itemContainer${userInput.indexOfButton}`).append(birdContainer);
         // Call Xeno API to retrieve a sound for each bird
         getBirdSoundsBasedOnName(bird.comName);
     });
@@ -170,6 +159,7 @@ const getBirdsBasedOnLocation = (sightSpot) => {
         },
         data: {
             r: sightSpot,
+            maxResults: 5,
             fmt: 'json'
         }
     }).then(function(res){
@@ -183,35 +173,42 @@ const getBirdsBasedOnLocation = (sightSpot) => {
 userInput.showBirds = function() {
     $('.locationOptions').on('click', 'button.option', function(){
         console.log(this);
-        const indexOfButton = $(this).attr('id');
-        userInput.destinationLocations.forEach((destinationLocation) => {
-            let indexOfArrayElement = userInput.destinationLocations.indexOf(destinationLocation);
-            if (indexOfArrayElement = indexOfButton) {
-                userInput.retrieveLocationCode(destinationLocation.city);
-            }
-        });
+        userInput.indexOfButton = $(this).attr('id');
+        let finalDestination = userInput.destinationLocations.find(el => el.unique_id === Number(userInput.indexOfButton))
+        userInput.retrieveLocationCode(finalDestination.city);
+
+        // userInput.destinationLocations.forEach((destinationLocation) => {
+
+        //     // let indexOfArrayElement = userInput.destinationLocations.indexOf(destinationLocation);
+        //     console.log(finalDestination)
+        //     // if (indexOfArrayElement === Number(userInput.indexOfButton)) {
+        //     //     console.log(destinationLocation)
+        //     // }
+        // });
     });
 }
 
 // Function to display sounds
 userInput.displayBirdSounds = (recordings) => {
-        const birdName = $('<p>').text(recordings[0].en);
+        // const birdName = $('<p>').text(recordings[0].en);
         // const soundContainer = $('<div>').append(birdName);
         // const soundUrl = $('<audio>').attr('src',recordings[0].url);
         // Add Audio element to the page
         // <iframe src='https://www.xeno-canto.org/371524/embed?simple=1' scrolling='no' frameborder='0' width='340' height='115'></iframe>
+        console.log(recordings);
         const birdSound = $('<iframe>').attr('src', `${recordings[0].url}/embed?simple=1`);
-    
+        let birdSoundContainer = recordings[0].en.replace(' ', '-').toLowerCase();
+        console.log(`created class is ${birdSoundContainer}`);
         // let birdSound = document.createElement('audio');
         // birdSound.setAttribute('controls', true);
         // let audioSource = document.createElement('source');
         // audioSource.src = `${recordings[0].url}/embed`;
         // birdSound.appendChild(audioSource)
-        const soundContainer = $('<div>').append(birdName, birdSound);
+        const soundContainer = $('<div>').append( birdSound);
 
 
         
-        $('body').append(soundContainer);
+        $(`.${birdSoundContainer}`).append(soundContainer);
     // recordings.forEach((recording) => {
     //     const soundUrl = $('<p>').text(recording.url);
     //     const soundContainer = $('<div>').append(soundUrl);
@@ -256,6 +253,9 @@ $(function(){
         event.preventDefault();
         // Retrieve user input and call TrailAPI & DIsplay Results on the page
         userInput.retrieveInputValues();
+
+        $('.landingPage').fadeOut(1000);
+        $('.hiking').fadeIn();
         // userInput.showBirds();
         // userInput.retrieveLocationCode();
         // getBirdSoundsBasedOnName('Owl');
