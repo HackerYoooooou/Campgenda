@@ -1,0 +1,33 @@
+// Main section sttyles
+
+
+main {
+    background-color: #7cb342;
+    height: 80vh;
+    position: relative;
+}
+
+.wrapper {
+    max-width: 1280px;
+    width: 80%;
+    margin: 0 auto;
+    padding: 50px 0;
+    display: flex;
+    justify-content: space-between;
+
+    // REMOVE
+    height: 60vh;
+}
+
+section {
+    flex-basis: 60%;
+}
+
+aside {
+    flex-basis: 25%;
+    display: flex;
+    align-items: flex-end;
+    img {
+        min-width: 274px;
+    }
+}

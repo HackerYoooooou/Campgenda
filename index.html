@@ -6,20 +6,61 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <!-- <link rel="icon" href="assets/favicon.ico" type="image/x-icon" /> -->
     <title>Campgenda</title>
+    <link href="https://fonts.googleapis.com/css?family=Bungee|Oswald:400,700" rel="stylesheet">
     <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-    <form>
-        <input type="text" name="address" placeholder="address">
-        <input type="text" name="province" placeholder="province">
-        <input type="text" name="city" placeholder="city">
-        <input type="text" name="radius" placeholder="radius">
-        <input type="text" name="activity" placeholder="activity">
-        <input type="submit" name="" id="">
-    </form>
-    <div class="locationOptions">
+    <header>
+        <img src="images/logo.png" alt="Brand Logo" class="brandLogo">
+    </header>
+    <main>
+        <div class="wrapper">
+            <section class="landingPage">
+                <h1>step 1: where are you going?</h1>
+                <form>
+                    <p>Search for</p>
+                    <select name="activity">
+                        <option value="hiking">hiking</option>
+                        <option value="camping">camping</option>
+                    </select>
+                    <p>sites in</p>
+                    <input type="text" name="city" placeholder="city" value="Toronto">
+                    <input type="text" name="province" placeholder="province" value="Ontario">
+                    <p>within</p>
+                    <select name="radius">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                        <option value="25">25</option>
+                        <option value="30">30</option>
+                        <option value="35">35</option>
+                        <option value="40">40</option>
+                        <option value="45">45</option>
+                        <option value="50">50</option>
+                    </select>
+                    <!-- <input type="text" name="radius" placeholder="radius" value="50"> -->
+                    <p>km of</p>
+                    <input type="text" name="address" placeholder="address" value="1001 Bathurst Street">
+                    <input type="submit" name="" id="">
+                </form>
+            </section>
+            <section class="uvInfo hide">
 
-    </div>
+            </section>
+            <section class="hiking hide">
+                <div class="locationOptions">
+                </div>
+            </section>
+            <section class="camping hide">
+
+            </section>
+            <aside>
+                <img src="images/smoresCracker.png" alt="">
+            </aside>
+        </div>
+    </main>
+
     <script src='https://code.jquery.com/jquery-3.2.1.min.js' integrity='sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4='crossorigin='anonymous'></script>
     <script src="https://www.gstatic.com/firebasejs/4.9.1/firebase.js"></script>
     <script src="js/script.js"></script>
