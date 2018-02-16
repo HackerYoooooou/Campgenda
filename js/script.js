@@ -167,13 +167,7 @@ userInput.displayOptions = (locations) => {
         return parseFloat(b.rating) - parseFloat(a.rating) || b.length - a.length;
     });
     console.log(activitiesArray);
-<<<<<<< HEAD
-    for (i = 0; i < activitiesArray.length;i++) {
-||||||| merged common ancestors
-    for (i=0; i<100;i++) {
-=======
     for (i=0; i<activitiesArray.length;i++) {
->>>>>>> 9381a481c04a1f7e317e18f50f76205283ee189c
         const name = $(`<button class=option id="${activitiesArray[i].place_id}">`).text(activitiesArray[i].name);
         const direction = $('<p>').text(activitiesArray[i].description);
         const rating = $('<p>').text(`Trail Raiting is ${activitiesArray[i].rating}`);
