@@ -182,9 +182,13 @@ button {
   -o-transition: 0.3s;
   transition: 0.3s; }
 
+.hide {
+  display: none; }
+
 main {
   background-color: #7cb342;
-  height: 80vh; }
+  height: 80vh;
+  position: relative; }
 
 .wrapper {
   max-width: 1280px;
@@ -196,7 +200,13 @@ main {
   display: flex;
   height: 60vh; }
 
+section {
+  -ms-flex-preferred-size: 60%;
+  flex-basis: 60%; }
+
 aside {
+  -ms-flex-preferred-size: 25%;
+  flex-basis: 25%;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -204,27 +214,14 @@ aside {
   -ms-flex-align: end;
   align-items: flex-end; }
 
-main {
-  background-color: #7cb342;
-  height: 80vh; }
-
-.wrapper {
-  max-width: 1280px;
-  width: 80%;
-  margin: 0 auto;
-  padding: 50px 0;
+form {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
-  height: 60vh; }
-
-aside {
-  display: -webkit-box;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-align: end;
-  -ms-flex-align: end;
-  align-items: flex-end; }
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap; }
+  form p {
+    padding: 0 10px 20px 0; }
 
 .option {
   font-size: 5rem;

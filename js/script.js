@@ -123,9 +123,8 @@ userInput.displayOptions = (locations) => {
             const name = $(`<button class=option id="${i}">`).text(activity.name);
             const direction = $('<p>').text(activity.description);
             const container = $('.locationOptions').append(name, direction);
-            $('body').append(container);
+            $('.hiking').append(container);
         });
-      
     });
 }
 
@@ -256,6 +255,9 @@ $(function(){
         event.preventDefault();
         // Retrieve user input and call TrailAPI & DIsplay Results on the page
         userInput.retrieveInputValues();
+
+        $('.landingPage').fadeOut(1000);
+        $('.hiking').fadeIn();
         // userInput.showBirds();
         // userInput.retrieveLocationCode();
         // getBirdSoundsBasedOnName('Owl');

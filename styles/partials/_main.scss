@@ -4,6 +4,7 @@
 main {
     background-color: #7cb342;
     height: 80vh;
+    position: relative;
 }
 
 .wrapper {
@@ -17,7 +18,12 @@ main {
     height: 60vh;
 }
 
+section {
+    flex-basis: 60%;
+}
+
 aside {
+    flex-basis: 25%;
     display: flex;
     align-items: flex-end;
 }
