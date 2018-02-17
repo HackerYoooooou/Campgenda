@@ -166,7 +166,8 @@ html {
 body {
   color: snow;
   font-size: 1.6rem;
-  font-family: 'Oswald', sans-serif; }
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 0.8px; }
 
 h1 {
   text-transform: uppercase;
@@ -200,8 +201,7 @@ main {
   display: flex;
   -webkit-box-pack: justify;
   -ms-flex-pack: justify;
-  justify-content: space-between;
-  height: 60vh; }
+  justify-content: space-between; }
 
 section {
   -ms-flex-preferred-size: 60%;
@@ -220,13 +220,22 @@ aside {
     min-width: 274px; }
 
 form {
+  padding: 25px 0;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   -ms-flex-wrap: wrap;
-  flex-wrap: wrap; }
+  flex-wrap: wrap;
+  -ms-flex-line-pack: baseline;
+  align-content: baseline; }
+  form input,
+  form select,
   form p {
-    padding: 0 10px 20px 0; }
+    margin: 0 5px 50px 0; }
+  form p {
+    font-size: 2rem; }
+  form input[name="address"] {
+    min-width: 490px; }
 
 .option {
   font-size: 2rem;
