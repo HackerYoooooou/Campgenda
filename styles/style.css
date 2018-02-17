@@ -220,7 +220,7 @@ aside {
     min-width: 274px; }
 
 form {
-  padding: 50px 0;
+  padding: 25px 0;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -234,6 +234,8 @@ form {
     margin: 0 5px 50px 0; }
   form p {
     font-size: 2rem; }
+  form input[name="address"] {
+    min-width: 490px; }
 
 .option {
   font-size: 2rem;

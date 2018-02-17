@@ -18,7 +18,7 @@ userInput.currentDate = new Date();
 
 // Retrieve User Input and call GoogleMaps API and TrailAPI
 userInput.retrieveInputValues = function() {
-    userInput.province = $('input[name=province]').val();
+    userInput.province = $('select[name=province]').val();
     userInput.city = $('input[name=city]').val();
     userInput.radius = $('select[name=radius]').val();
     userInput.activity = $('select[name=activity]').val();

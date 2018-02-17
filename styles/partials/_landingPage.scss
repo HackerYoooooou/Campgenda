@@ -1,5 +1,5 @@
 form {
-    padding: 50px 0;
+    padding: 25px 0;
     display: flex;
     flex-wrap: wrap;
     align-content: baseline;
@@ -10,5 +10,8 @@ form {
     }
     p {
         font-size: 2rem;
+    }
+    input[name="address"]{
+        min-width: 490px;
     }
 }
