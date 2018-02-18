@@ -308,7 +308,7 @@ form {
     color: snow; }
     .modalWindow a:hover, .modalWindow a:visited, .modalWindow a:focus {
       color: snow; }
-  .modalWindow div {
+  .modalWindow .modalWindowContent div {
     float: left;
     width: 45%;
     margin-right: 25px; }

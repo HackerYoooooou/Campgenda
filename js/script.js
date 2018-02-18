@@ -176,11 +176,13 @@ userInput.retrieveLocationCode = function (arrayNumber) {
                         getBirdsBasedOnLocation(locationCode);
                 }
             }
+
     });
 }
 
 
 userInput.displayBirdsInRegion = (birds) => {
+    $('.modalWindowContent').html(''); 
     birds.forEach((bird, i) => {
         // console.log(bird.comName);
 
@@ -190,7 +192,7 @@ userInput.displayBirdsInRegion = (birds) => {
         // const birdIcon = $('img').attr('src','images/duck-2.png');
         // $(`.itemContainer${userInput.indexOfButton}`).prepend(birdIcon);
         // $(`.itemContainer${userInput.indexOfButton}`).append(birdContainer);
-        $('.modalWindow').append(birdContainer);
+        $('.modalWindowContent').append(birdContainer);
         // Call Xeno API to retrieve a sound for each bird
         getBirdSoundsBasedOnName(bird);
     });
@@ -218,7 +220,6 @@ const getBirdsBasedOnLocation = (sightSpot) => {
         // let uniqueBirds = [...new Set(res)];
         console.log(uniqueBirds);
         userInput.displayBirdsInRegion(uniqueBirds);
-        uniqueBirds = '';
     });
 }
 
