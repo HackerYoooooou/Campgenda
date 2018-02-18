@@ -1,17 +1,33 @@
 form {
-    padding: 25px 0;
+    // flex-basis: 30%;
+    padding: 34px 0;
     display: flex;
     flex-wrap: wrap;
     align-content: baseline;
+    justify-content: space-between;
     input,
     select,
     p {
-        margin: 0 5px 50px 0;
+        margin: 0 10px 50px 0;
     }
     p {
         font-size: 2rem;
     }
     input[name="address"]{
-        min-width: 490px;
+        min-width: 450px;
+    }
+    input[type="submit"] {
+        background-color: $brandGreen;
+        border: 2px solid snow;
+        color: snow;
+        padding: 10px 40px;
+        justify-self: flex-end;
+        transition: all 0.3s;
+        &:hover {
+
+            border: 2px solid #cddc39;
+            background-color: snow; 
+            color: $brandGreen;
+        }
     }
 }

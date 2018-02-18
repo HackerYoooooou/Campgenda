@@ -23,13 +23,11 @@ userInput.retrieveInputValues = function() {
     userInput.activity = $('select[name=activity]').val();
     userInput.address = $('input[name=address]').val();
     userInput.getCoordinates(userInput.address, userInput.city, userInput.province);
-    userInput.getUVIndex(userInput.lat, userInput.lng, userInput.currentDate);
     userInput.getWeather(userInput.province, userInput.city);
 }
 
-
+// NOEL: UPDATE
 userInput.getDestinationAddress = {
-
 }
 
 // Create AJAX request to retrieve coordinates based on user's address
@@ -48,6 +46,8 @@ userInput.getCoordinates = (address, city, province) => {
         userInput.lng = res.results[0]['geometry']['location']['lng'];
         console.log(userInput.lat, userInput.lng);
         userInput.getLocationBasedOnUserInput(userInput.lat, userInput.lng, userInput.radius, userInput.activity);
+        // Call UVIndex API after coordinates are returned
+        userInput.getUVIndex(userInput.lat, userInput.lng, userInput.currentDate);
     })
 };
 
@@ -144,18 +144,19 @@ userInput.displayOptions = (locations) => {
         return parseFloat(b.rating) - parseFloat(a.rating) || b.length - a.length;
     });
     console.log(activitiesArray);
+
     if ( activitiesArray.length < 1) {
         alert('Sorry, there are no results. Please select a higher search radius.');
-    } else {    
-        for (i=0; i<activitiesArray.length;i++) {
-            const name = $(`<button class=option id="${activitiesArray[i].place_id}">`).text(activitiesArray[i].name);
-            const direction = $('<p>').text(activitiesArray[i].description);
-            const rating = $('<p>').text(`Trail Raiting is ${activitiesArray[i].rating}`);
-            const length = $('<p>').text(`Trail Length is ${activitiesArray[i].length} km`);
-            const trailContainer = $(`<div class=itemContainer${activitiesArray[i].place_id}>`).append(name, rating, length, direction);
-            const container = $('.locationOptions').append(trailContainer);
-            $('.hiking').append(container);
-        }
+    } else { 
+    for (i=0; i<activitiesArray.length;i++) {
+        const name = $(`<button class=option id="${activitiesArray[i].place_id}">`).text(activitiesArray[i].name);
+        const direction = $('<p>').text(activitiesArray[i].description);
+        const rating = $('<p>').text(`Trail Raiting is ${activitiesArray[i].rating}`);
+        const length = $('<p>').text(`Trail Length is ${activitiesArray[i].length} km`);
+        const trailContainer = $(`<div class=itemContainer${activitiesArray[i].place_id}>`).append(name, rating, length, direction);
+        // const container = $('.locationOptions').append(trailContainer);
+        $('.hiking').append(trailContainer);
+      }
     }
 }
 
@@ -181,14 +182,19 @@ userInput.retrieveLocationCode = function (arrayNumber) {
 
 userInput.displayBirdsInRegion = (birds) => {
     birds.forEach((bird, i) => {
-        console.log(bird.comName);
-        const name = $('<h3>').text(bird.comName);
-        const birdContainer = $(`<div class="${bird.comName.replace(' ','-').toLowerCase()}">`).append(name);
+        // console.log(bird.comName);
+
+        const name = $('<h3>').text(bird);
+        const birdContainer = $(`<div class="${bird.replace(' ','-').toLowerCase()}">`).append(name);
         // console.log(`.itemContainer${userInput.indexOfButton}`);
-        $(`.itemContainer${userInput.indexOfButton}`).append(birdContainer);
+        // const birdIcon = $('img').attr('src','images/duck-2.png');
+        // $(`.itemContainer${userInput.indexOfButton}`).prepend(birdIcon);
+        // $(`.itemContainer${userInput.indexOfButton}`).append(birdContainer);
+        $('.modalWindow').append(birdContainer);
         // Call Xeno API to retrieve a sound for each bird
-        getBirdSoundsBasedOnName(bird.comName);
+        getBirdSoundsBasedOnName(bird);
     });
+    $('.modalWindow').fadeIn();
 }
 
 // BIRDS API
@@ -208,14 +214,17 @@ const getBirdsBasedOnLocation = (sightSpot) => {
         }
     }).then(function (res) {
         console.log(res);
-        userInput.displayBirdsInRegion(res);
+        let uniqueBirds = [...new Set(res.map(item => item.comName))];
+        // let uniqueBirds = [...new Set(res)];
+        console.log(uniqueBirds);
+        userInput.displayBirdsInRegion(uniqueBirds);
     });
 }
 
 
 // function to trigger retrieveLocationCode function on click
 userInput.showBirds = function () {
-    $('.locationOptions').on('click', 'button.option', function () {
+    $('.hiking').on('click', 'button.option', function () {
         console.log(this);
         userInput.indexOfButton = $(this).attr('id');
         let finalDestination = userInput.destinationLocations.find(el => el.unique_id === Number(userInput.indexOfButton))
@@ -314,8 +323,13 @@ userInput.init = function () {
 
 }
 
+
+$('.fa-times').on('click', function () {
+    $('.modalWindow').fadeOut();
+});
 // Calls function that enables navigation
 userInput.nextScreen();
+
 
 $(function () {
     // getBirdSoundsBasedOnName();
