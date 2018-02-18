@@ -1,4 +1,64 @@
-.option {
+.hiking {
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-between;
+    // height: 80vh;
+    div {
+        flex-basis: 45%;
+        margin-bottom: 50px;
+        border: 2px solid #cddc39;
+        // background-color: snow;
+        // text-align: center;
+
+        button {
+            margin-bottom: 20px;
+            width: 100%;
+            background-color: $brandGreen;
+            text-align: left;
+        }
+
+        p {
+            margin: 15px 0 15px 10px;
+        }
+    }
+    .option {
     font-size: 2rem;
-    color: salmon;
+    color: #e65100;
+    }
 }
+
+.modalWindow {
+    position: absolute;
+    width: 80%;
+    margin: 0 auto;
+    top: 50px;
+    z-index: 2;
+    padding: 100px;
+    background-color:rgba(27,94,32, 1);
+    div {
+        border: none;
+    }
+    .fa {
+        position: absolute;
+        top: 25px;
+        right: 25px;
+        font-size: 2rem;
+    }
+    a {
+        color: snow;
+        &:hover,
+        &:visited,
+        &:focus {
+            color: snow;
+        }
+    }
+    div {
+        float: left;
+        width: 45%;
+    }
+    div:first-child() {
+        margin-right: calc(90% - 50px);
+    }
+
+}
+
