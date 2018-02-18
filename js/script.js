@@ -13,20 +13,23 @@ userInput.initFirebase = () => {
     firebase.initializeApp(config);
 }
 
-
 userInput.currentDate = new Date(); 
 
 // Retrieve User Input and call GoogleMaps API and TrailAPI
 userInput.retrieveInputValues = function() {
     userInput.province = $('select[name=province]').val();
     userInput.city = $('input[name=city]').val();
-    userInput.radius = $('select[name=radius]').val();
+    userInput.radius = userInput.kilometersToMiles($('select[name=radius]').val());
     userInput.activity = $('select[name=activity]').val();
     userInput.address = $('input[name=address]').val();
     userInput.getCoordinates(userInput.address, userInput.city, userInput.province);
-    userInput.getUVIndex(userInput.lat, userInput.lng, userInput.currentDate)
-    // userInput.getLocationBasedOnUserInput(userInput.lat, userInput.long, userInput.radius, userInput.activity);
-    // getData();
+    userInput.getUVIndex(userInput.lat, userInput.lng, userInput.currentDate);
+    userInput.getWeather(userInput.province, userInput.city);
+}
+
+
+userInput.getDestinationAddress = {
+
 }
 
 // Create AJAX request to retrieve coordinates based on user's address
@@ -47,19 +50,6 @@ userInput.getCoordinates = (address, city, province) => {
         userInput.getLocationBasedOnUserInput(userInput.lat, userInput.lng, userInput.radius, userInput.activity);
     })
 };
-
-// Create async function -DISREGARD (NOT WORKING/ HERE FOR FUTURE REFERENCE)
-// async function getData() {
-//     const locationCoordinates = await userInput.getCoordinates(userInput.address, userInput.city, userInput.province);
-//     userInput.lat = locationCoordinates.results[0]['geometry']['location']['lat'];
-//     userInput.lng = locationCoordinates.results[0]['geometry']['location']['lng'];
-//     console.log(`Here are the coordinates: ${userInput.lat}, ${userInput.lng}`);
-
-
-//     const locationsList = await userInput.getLocationBasedOnUserInput(43.6567919, -79.4609322, 5, 'hiking');
-
-//     userInput.displayOptions(locationsList.places);
-// };
 
 // Create AJAX request to retrieve location information based on latitude, longitude, radius and activity type
 userInput.getLocationBasedOnUserInput = (lat, long, radius, activity) => {
@@ -92,6 +82,7 @@ userInput.getLocationBasedOnUserInput = (lat, long, radius, activity) => {
 
 // Create AJAX request to retrieve UV Index
 
+
 userInput.getUVIndex = (lat, long, today) => {
     return $.ajax({
         url: 'http://proxy.hackeryou.com',
@@ -109,44 +100,30 @@ userInput.getUVIndex = (lat, long, today) => {
             },
         }
     })
-        .then(function (res) {
-            console.log(res);
-        });
+    .then(function (res) {
+        console.log(res);
+    });
 }
 
 // Convert miles to kilometers
 
-userInput.milesToKilometers = (miles) => {
-    const distance = parseInt(miles) * 1.60934;
+userInput.kilometersToMiles = (kilometers) => {
+    const distance = parseInt(kilometers) / 1.60934;
     return distance;
 }
 
-// I'm not done here -Noel
+// Gets weather info about destination
 userInput.getWeather = function (province, city) {
     $.ajax({
         url: `http://api.wunderground.com/api/559369d256cad936/conditions/q/${province}/${city}.json`,
         method: 'GET',
         dataType: 'json'
     }).then((res) => {
-
-        let conditions = res.response.results.filter((city) => {
-            return city.country === 'CA' && city.state === province;
-        });
-
-        console.log(conditions);
-        // const newData = res.response.results[0].country;
-        // console.log(newData);
-        // let ofAge = newData.filter((item) => {
-        //     return item;
-        // });
-        // console.log(ofAge);
-
-
-
-
-        // let conditions = res.filter((value) => {
-        //     console.log(conditions);
-        // });
+        return userInput.weather = { 
+            inCelsius: res.current_observation.feelslike_c,
+            inFarenheit: res.current_observation.feelslike_f,
+            conditions: res.current_observation.weather
+        };
     });
 };
 
@@ -167,14 +144,18 @@ userInput.displayOptions = (locations) => {
         return parseFloat(b.rating) - parseFloat(a.rating) || b.length - a.length;
     });
     console.log(activitiesArray);
-    for (i=0; i<activitiesArray.length;i++) {
-        const name = $(`<button class=option id="${activitiesArray[i].place_id}">`).text(activitiesArray[i].name);
-        const direction = $('<p>').text(activitiesArray[i].description);
-        const rating = $('<p>').text(`Trail Raiting is ${activitiesArray[i].rating}`);
-        const length = $('<p>').text(`Trail Length is ${activitiesArray[i].length} km`);
-        const trailContainer = $(`<div class=itemContainer${activitiesArray[i].place_id}>`).append(name, rating, length, direction);
-        const container = $('.locationOptions').append(trailContainer);
-        $('.hiking').append(container);
+    if ( activitiesArray.length < 1) {
+        alert('Sorry, there are no results. Please select a higher search radius.');
+    } else {    
+        for (i=0; i<activitiesArray.length;i++) {
+            const name = $(`<button class=option id="${activitiesArray[i].place_id}">`).text(activitiesArray[i].name);
+            const direction = $('<p>').text(activitiesArray[i].description);
+            const rating = $('<p>').text(`Trail Raiting is ${activitiesArray[i].rating}`);
+            const length = $('<p>').text(`Trail Length is ${activitiesArray[i].length} km`);
+            const trailContainer = $(`<div class=itemContainer${activitiesArray[i].place_id}>`).append(name, rating, length, direction);
+            const container = $('.locationOptions').append(trailContainer);
+            $('.hiking').append(container);
+        }
     }
 }
 
@@ -302,10 +283,39 @@ const getBirdSoundsBasedOnName = (birdName) => {
 
 
 
+// Enables navigation
+userInput.nextScreen = () => {
+    $('input[type=submit]').on('click', function (event) {
+        currentScreen = $(this).attr('id');
+        if (currentScreen === 'firstInput') {
+            $('.landingPage').fadeOut(1000);
+            $('.uvInfo').fadeIn();
+            // const name = $(`<button class=option id="${activitiesArray[i].place_id}">`).text(activitiesArray[i].name);
+            // const direction = $('<p>').text(activitiesArray[i].description);
+            // const rating = $('<p>').text(`Trail Raiting is ${activitiesArray[i].rating}`);
+            // const length = $('<p>').text(`Trail Length is ${activitiesArray[i].length} km`);
+            // const trailContainer = $(`<div class=itemContainer${activitiesArray[i].place_id}>`).append(name, rating, length, direction);
+            // const container = $('.locationOptions').append(trailContainer);
+            // $('.hiking').append(container);            
+
+        } else if (currentScreen === 'secondInput' && userInput.activity === 'hiking') {
+            $('.uvInfo').fadeOut(1000);
+            $('.hiking').fadeIn();
+        } else if (currentScreen === 'secondInput' && userInput.activity === 'camping') {
+            $('.uvInfo').fadeOut(1000);
+            $('.camping').fadeIn();
+        }
+    });
+}
+
+
 
 userInput.init = function () {
 
 }
+
+// Calls function that enables navigation
+userInput.nextScreen();
 
 $(function () {
     // getBirdSoundsBasedOnName();
@@ -314,14 +324,25 @@ $(function () {
     userInput.initFirebase();
     $('form').on('submit', function (event) {
         event.preventDefault();
-        // Retrieve user input and call TrailAPI & DIsplay results on the page
+        // Retrieve user input and call TrailAPI & Display results on the page
         userInput.retrieveInputValues();
-
-        $('.landingPage').fadeOut(1000);
-        $('.hiking').fadeIn();
+        // Handle navigation of site
         // userInput.showBirds();
         // userInput.retrieveLocationCode();
         // getBirdSoundsBasedOnName('Owl');
 
     })
 });
+
+// Create async function -DISREGARD (NOT WORKING/ HERE FOR FUTURE REFERENCE)
+// async function getData() {
+//     const locationCoordinates = await userInput.getCoordinates(userInput.address, userInput.city, userInput.province);
+//     userInput.lat = locationCoordinates.results[0]['geometry']['location']['lat'];
+//     userInput.lng = locationCoordinates.results[0]['geometry']['location']['lng'];
+//     console.log(`Here are the coordinates: ${userInput.lat}, ${userInput.lng}`);
+
+
+//     const locationsList = await userInput.getLocationBasedOnUserInput(43.6567919, -79.4609322, 5, 'hiking');
+
+//     userInput.displayOptions(locationsList.places);
+// };
