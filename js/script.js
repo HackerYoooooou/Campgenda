@@ -238,6 +238,7 @@ const getBirdsBasedOnLocation = (sightSpot) => {
         // let uniqueBirds = [...new Set(res)];
         console.log(uniqueBirds);
         userInput.displayBirdsInRegion(uniqueBirds);
+        uniqueBirds = '';
     });
 }
 

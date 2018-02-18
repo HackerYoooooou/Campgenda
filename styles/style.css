@@ -310,6 +310,5 @@ form {
       color: snow; }
   .modalWindow div {
     float: left;
-    width: 45%; }
-  .modalWindow div:first-child() {
-    margin-right: calc(90% - 50px); }
+    width: 45%;
+    margin-right: 25px; }
