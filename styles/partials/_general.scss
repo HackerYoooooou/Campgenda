@@ -17,6 +17,16 @@ h1 {
     font-family: 'Bungee', cursive;
 }
 
+a {
+    text-decoration: none;
+    color: snow;
+    &:hover,
+    &:visited,
+    &:focus {
+        color: snow;
+    }
+}
+
 input,
 button {
     -moz-appearance: none;

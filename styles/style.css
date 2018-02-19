@@ -173,6 +173,12 @@ h1 {
   text-transform: uppercase;
   font-family: 'Bungee', cursive; }
 
+a {
+  text-decoration: none;
+  color: snow; }
+  a:hover, a:visited, a:focus {
+    color: snow; }
+
 input,
 button {
   -moz-appearance: none;
@@ -231,7 +237,7 @@ aside {
     min-width: 274px; }
 
 form {
-  padding: 34px 0;
+  padding: 25px 0;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -306,10 +312,6 @@ form {
     top: 25px;
     right: 25px;
     font-size: 2rem; }
-  .modalWindow a {
-    color: snow; }
-    .modalWindow a:hover, .modalWindow a:visited, .modalWindow a:focus {
-      color: snow; }
   .modalWindow .modalWindowContent div {
     float: left;
     width: 45%;
