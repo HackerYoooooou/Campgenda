@@ -97,8 +97,18 @@ userInput.getUVIndex = (lat, long, today) => {
     .then(function (res) {
         destinationUVMax = res.result.uv_max;
         console.log(destinationUVMax);
+        // Call function to display UV Max Index in Modal window
+        userInput.displayUVIndex(res.result.uv_max);
     });
 }
+
+// Create function to display UV Index in the Modal Window
+
+userInput.displayUVIndex = function(uvIndex) {
+    $('.modalWindowContent').prepend(`<p>UV Index is ${uvIndex}</p>`);
+}
+
+
 
 // Convert miles to kilometers
 
@@ -115,20 +125,21 @@ userInput.getWeather = function (feature, province, city) {
         dataType: 'json'
     }).then((res) => {
         if (feature === 'conditions') {
-            return userInput.weather = { 
-                inCelsius: res.current_observation.feelslike_c,
-                inFarenheit: res.current_observation.feelslike_f,
-                conditions: res.current_observation.weather
-            };
+            userInput.displayWeather(res.current_observation.feelslike_c, res.current_observation.feelslike_f, res.current_observation.weather);
         } else if (feature === 'astronomy') {
-            return userInput.moon = {
-                phase: res.moon_phase.phaseofMoon,
-                sunrise: res.moon_phase.sunrise,
-                sunset: res.moon_phase.sunset
-            }
+            userInput.displayMoonPhase(res.moon_phase.phaseofMoon, res.moon_phase.sunrise.hour, res.moon_phase.sunrise.minute, res.moon_phase.sunset.hour, res.moon_phase.sunset.minute);
         }
     });
 };
+
+userInput.displayWeather = function(firstParameter, secondParameter, thirdParameter) {
+    $('.modalWindowContent').prepend(`<p>It feels like ${firstParameter}. The temperarure in F is ${secondParameter}. The weather is ${thirdParameter}</p>`);
+}
+
+userInput.displayMoonPhase = function (moonPhase, sunriseHour, sunriseMinute, sunsetHour, sunsetMinute) {
+    $('.modalWindowContent').prepend(`<p>Moon Phase is ${moonPhase}. Sunrise is at ${sunriseHour}:${sunriseMinute}. Sunset is at ${sunsetHour}:${sunsetMinute}</p>`);
+}
+
 
 // Create function local to userInput object
 // to print attributes of each element of locations array on the screen
@@ -183,13 +194,12 @@ userInput.retrieveLocationCode = function (arrayNumber) {
                         getBirdsBasedOnLocation(locationCode);
                 }
             }
-
     });
 }
 
 
 userInput.displayBirdsInRegion = (birds) => {
-    $('.modalWindowContent').html(''); 
+    // $('.modalWindowContent').html(''); 
     birds.forEach((bird, i) => {
         const name = $('<h3>').text(bird);
         const birdContainer = $(`<div class="${bird.replace(' ','-').toLowerCase()}">`).append(name);
@@ -197,7 +207,7 @@ userInput.displayBirdsInRegion = (birds) => {
         // Call Xeno API to retrieve a sound for each bird
         getBirdSoundsBasedOnName(bird);
     });
-    $('.modalWindow').fadeIn();
+    // $('.modalWindow').fadeIn();
 }
 
 // BIRDS API
@@ -226,18 +236,18 @@ const getBirdsBasedOnLocation = (sightSpot) => {
 // function to trigger retrieveLocationCode function on click
 userInput.showBirds = function () {
     $('.destinationOption').on('click', 'button.option', function () {
+        userInput.indexOfButton = $(this).attr('id');
+        let finalDestination = userInput.destinationLocations.find(el => el.unique_id === Number(userInput.indexOfButton))
+        // Fade In Modal Window to be populated with appropriate info
+        $('.modalWindowContent').html(''); 
+        $('.modalWindow').fadeIn();
+        userInput.getUVIndex(finalDestination.lat, finalDestination.lon, userInput.currentDate);
+        userInput.getWeather('conditions', finalDestination.state, finalDestination.city);
         if(userInput.activity === "hiking") {
-            console.log(this);
-            userInput.indexOfButton = $(this).attr('id');
-            let finalDestination = userInput.destinationLocations.find(el => el.unique_id === Number(userInput.indexOfButton))
-            console.log(finalDestination);
             userInput.retrieveLocationCode(finalDestination.city);
-            userInput.getUVIndex(finalDestination.lat, finalDestination.lon, userInput.currentDate);
-            userInput.getWeather('conditions', finalDestination.state, finalDestination.city);
-            userInput.getWeather('astronomy',finalDestination.state, finalDestination.city);
         }
         else if (userInput.activity === "camping") {
-            console.log('You selected camping, no birds here');
+            userInput.getWeather('astronomy', finalDestination.state, finalDestination.city);
         }
     });
 }
