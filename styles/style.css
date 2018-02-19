@@ -263,7 +263,7 @@ form {
       background-color: snow;
       color: #7cb342; }
 
-.hiking {
+.destinationOption {
   -ms-flex-wrap: wrap;
   flex-wrap: wrap;
   -webkit-box-orient: horizontal;
@@ -273,19 +273,19 @@ form {
   -webkit-box-pack: justify;
   -ms-flex-pack: justify;
   justify-content: space-between; }
-  .hiking div {
+  .destinationOption div {
     -ms-flex-preferred-size: 45%;
     flex-basis: 45%;
     margin-bottom: 50px;
     border: 2px solid #cddc39; }
-    .hiking div button {
+    .destinationOption div button {
       margin-bottom: 20px;
       width: 100%;
       background-color: #7cb342;
       text-align: left; }
-    .hiking div p {
+    .destinationOption div p {
       margin: 15px 0 15px 10px; }
-  .hiking .option {
+  .destinationOption .option {
     font-size: 2rem;
     color: #e65100; }
 

@@ -132,21 +132,26 @@ userInput.getWeather = function (province, city) {
 userInput.displayOptions = (locations) => {
     let activitiesArray = [];
     locations.forEach((location,i) => {
-        // console.log(location);
         location.activities.forEach((activity) =>{
             activitiesArray.push(activity);
-            // console.log(activity);
         });
-        // Print array of activities
-        // console.log(activitiesArray);
     });
+
     activitiesArray.sort(function(a,b){
         return parseFloat(b.rating) - parseFloat(a.rating) || b.length - a.length;
     });
     console.log(activitiesArray);
 
+
     if ( activitiesArray.length < 1) {
-        alert('Sorry, there are no results. Please select a higher search radius.');
+        $('.landingPage').fadeOut();
+        $('.errorMessage').fadeIn(200);
+        const errorMessageContent = 'There are no options within selected radius. Please select a larger radius.';
+        $('.errorMessage').append(errorMessageContent);
+        $('.fa-tree').on('click', function () {
+            $('.errorMessage').fadeOut();
+            $('.landingPage').fadeIn();
+        });
     } else { 
     for (i=0; i<activitiesArray.length;i++) {
         const name = $(`<button class=option id="${activitiesArray[i].place_id}">`).text(activitiesArray[i].name);
@@ -154,8 +159,9 @@ userInput.displayOptions = (locations) => {
         const rating = $('<p>').text(`Trail Raiting is ${activitiesArray[i].rating}`);
         const length = $('<p>').text(`Trail Length is ${activitiesArray[i].length} km`);
         const trailContainer = $(`<div class=itemContainer${activitiesArray[i].place_id}>`).append(name, rating, length, direction);
-        // const container = $('.locationOptions').append(trailContainer);
-        $('.hiking').append(trailContainer);
+        $('.destinationOption').append(trailContainer);
+        $('.landingPage').fadeOut(1000);
+        $('.destinationOption').fadeIn();
       }
     }
 }
@@ -167,9 +173,7 @@ userInput.retrieveLocationCode = function (arrayNumber) {
         const codeObject = item.val();
         window.dataObj = codeObject;
         console.log(arrayNumber);
-        // console.log(codeObject);
             for (let key in codeObject) {
-                // console.log(codeObject);
                 if (codeObject[key]["country-code"] === 'CA' && codeObject[key]["name"] === arrayNumber ) {
                         console.log(codeObject[key]);
                         let locationCode = codeObject[key]["subnational2-code"];
@@ -184,14 +188,8 @@ userInput.retrieveLocationCode = function (arrayNumber) {
 userInput.displayBirdsInRegion = (birds) => {
     $('.modalWindowContent').html(''); 
     birds.forEach((bird, i) => {
-        // console.log(bird.comName);
-
         const name = $('<h3>').text(bird);
         const birdContainer = $(`<div class="${bird.replace(' ','-').toLowerCase()}">`).append(name);
-        // console.log(`.itemContainer${userInput.indexOfButton}`);
-        // const birdIcon = $('img').attr('src','images/duck-2.png');
-        // $(`.itemContainer${userInput.indexOfButton}`).prepend(birdIcon);
-        // $(`.itemContainer${userInput.indexOfButton}`).append(birdContainer);
         $('.modalWindowContent').append(birdContainer);
         // Call Xeno API to retrieve a sound for each bird
         getBirdSoundsBasedOnName(bird);
@@ -203,7 +201,6 @@ userInput.displayBirdsInRegion = (birds) => {
 const getBirdsBasedOnLocation = (sightSpot) => {
     return $.ajax({
         url: 'http://ebird.org/ws1.1/data/notable/region/recent',
-        // url: 'https://proxy.hackeryou.com',
         method: 'GET',
         dataType: 'jsonp',
         headers: {
@@ -217,7 +214,6 @@ const getBirdsBasedOnLocation = (sightSpot) => {
     }).then(function (res) {
         console.log(res);
         let uniqueBirds = [...new Set(res.map(item => item.comName))];
-        // let uniqueBirds = [...new Set(res)];
         console.log(uniqueBirds);
         userInput.displayBirdsInRegion(uniqueBirds);
     });
@@ -226,49 +222,28 @@ const getBirdsBasedOnLocation = (sightSpot) => {
 
 // function to trigger retrieveLocationCode function on click
 userInput.showBirds = function () {
-    $('.hiking').on('click', 'button.option', function () {
-        console.log(this);
-        userInput.indexOfButton = $(this).attr('id');
-        let finalDestination = userInput.destinationLocations.find(el => el.unique_id === Number(userInput.indexOfButton))
-        userInput.retrieveLocationCode(finalDestination.city);
-
-        // userInput.destinationLocations.forEach((destinationLocation) => {
-
-        //     // let indexOfArrayElement = userInput.destinationLocations.indexOf(destinationLocation);
-        //     console.log(finalDestination)
-        //     // if (indexOfArrayElement === Number(userInput.indexOfButton)) {
-        //     //     console.log(destinationLocation)
-        //     // }
-        // });
+    $('.destinationOption').on('click', 'button.option', function () {
+        if(userInput.activity === "hiking") {
+            console.log(this);
+            userInput.indexOfButton = $(this).attr('id');
+            let finalDestination = userInput.destinationLocations.find(el => el.unique_id === Number(userInput.indexOfButton))
+            console.log(finalDestination);
+            userInput.retrieveLocationCode(finalDestination.city);
+        }
+        else if (userInput.activity === "camping") {
+            console.log('You selected camping, no birds here');
+        }
     });
 }
 
 // Function to display sounds
 userInput.displayBirdSounds = (recordings) => {
-        // const birdName = $('<p>').text(recordings[0].en);
-        // const soundContainer = $('<div>').append(birdName);
-        // const soundUrl = $('<audio>').attr('src',recordings[0].url);
-        // Add Audio element to the page
-        // <iframe src='https://www.xeno-canto.org/371524/embed?simple=1' scrolling='no' frameborder='0' width='340' height='115'></iframe>
         console.log(recordings);
         const birdSound = $('<iframe>').attr('src', `${recordings[0].url}/embed?simple=1`);
         let birdSoundContainer = recordings[0].en.replace(' ', '-').toLowerCase();
         console.log(`created class is ${birdSoundContainer}`);
-        // let birdSound = document.createElement('audio');
-        // birdSound.setAttribute('controls', true);
-        // let audioSource = document.createElement('source');
-        // audioSource.src = `${recordings[0].url}/embed`;
-        // birdSound.appendChild(audioSource)
         const soundContainer = $('<div>').append( birdSound);
-
-
-        
         $(`.${birdSoundContainer}`).append(soundContainer);
-    // recordings.forEach((recording) => {
-    //     const soundUrl = $('<p>').text(recording.url);
-    //     const soundContainer = $('<div>').append(soundUrl);
-    //     $('body').append(soundContainer);
-    // });
 }
 
 // BIRDS SOUNDS API
@@ -281,7 +256,6 @@ const getBirdSoundsBasedOnName = (birdName) => {
         data: {
             reqUrl: 'https://www.xeno-canto.org/api/2/recordings',
             params: {
-                //  query: 'loc:Toronto'
                 query: birdName
             }
         }
@@ -295,29 +269,21 @@ const getBirdSoundsBasedOnName = (birdName) => {
 
 
 // Enables navigation
-userInput.nextScreen = () => {
-    $('input[type=submit]').on('click', function (event) {
-        currentScreen = $(this).attr('id');
-        if (currentScreen === 'firstInput') {
-            $('.landingPage').fadeOut(1000);
-            $('.uvInfo').fadeIn();
-            // const name = $(`<button class=option id="${activitiesArray[i].place_id}">`).text(activitiesArray[i].name);
-            // const direction = $('<p>').text(activitiesArray[i].description);
-            // const rating = $('<p>').text(`Trail Raiting is ${activitiesArray[i].rating}`);
-            // const length = $('<p>').text(`Trail Length is ${activitiesArray[i].length} km`);
-            // const trailContainer = $(`<div class=itemContainer${activitiesArray[i].place_id}>`).append(name, rating, length, direction);
-            // const container = $('.locationOptions').append(trailContainer);
-            // $('.hiking').append(container);            
-
-        } else if (currentScreen === 'secondInput' && userInput.activity === 'hiking') {
-            $('.uvInfo').fadeOut(1000);
-            $('.hiking').fadeIn();
-        } else if (currentScreen === 'secondInput' && userInput.activity === 'camping') {
-            $('.uvInfo').fadeOut(1000);
-            $('.camping').fadeIn();
-        }
-    });
-}
+// userInput.nextScreen = () => {
+//     $('input[type=submit]').on('click', function (event) {
+//         currentScreen = $(this).attr('id');
+//         if (currentScreen === 'firstInput') {
+//             $('.landingPage').fadeOut(1000);
+//             $('.destinationOption').fadeIn();
+//         }
+// WILL NEED TO REBUILD FOR STEP 2
+        // } else if (currentScreen === 'secondInput' && userInput.activity === 'camping') {
+        //     $('.uvInfo').fadeOut(1000);
+        //     $('.camping').fadeIn();
+        // }
+    // });
+// });
+// }
 
 
 
@@ -330,11 +296,10 @@ $('.fa-times').on('click', function () {
     $('.modalWindow').fadeOut();
 });
 // Calls function that enables navigation
-userInput.nextScreen();
+// userInput.nextScreen();
 
 
 $(function () {
-    // getBirdSoundsBasedOnName();
     userInput.showBirds();
     // userInput.init();
     userInput.initFirebase();
@@ -342,11 +307,6 @@ $(function () {
         event.preventDefault();
         // Retrieve user input and call TrailAPI & Display results on the page
         userInput.retrieveInputValues();
-        // Handle navigation of site
-        // userInput.showBirds();
-        // userInput.retrieveLocationCode();
-        // getBirdSoundsBasedOnName('Owl');
-
     })
 });
 
