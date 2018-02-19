@@ -188,6 +188,7 @@ button {
 
 main {
   background-color: #7cb342;
+  min-height: 80vh;
   height: 100%;
   position: relative; }
 
@@ -251,6 +252,7 @@ form {
     min-width: 450px; }
   form input[type="submit"] {
     background-color: #7cb342;
+    font-family: 'Bungee', cursive;
     border: 2px solid snow;
     color: snow;
     padding: 10px 40px;
