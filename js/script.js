@@ -97,8 +97,18 @@ userInput.getUVIndex = (lat, long, today) => {
     .then(function (res) {
         destinationUVMax = res.result.uv_max;
         console.log(destinationUVMax);
+        // Call function to display UV Max Index in Modal window
+        userInput.displayUVIndex(res.result.uv_max);
     });
 }
+
+// Create function to display UV Index in the Modal Window
+
+userInput.displayUVIndex = function(uvIndex) {
+    $('.modalWindowContent').prepend(`<p>UV Index is ${uvIndex}</p>`);
+}
+
+
 
 // Convert miles to kilometers
 
@@ -114,13 +124,18 @@ userInput.getWeather = function (province, city) {
         method: 'GET',
         dataType: 'json'
     }).then((res) => {
-        return userInput.weather = { 
-            inCelsius: res.current_observation.feelslike_c,
-            inFarenheit: res.current_observation.feelslike_f,
-            conditions: res.current_observation.weather
-        };
+        // return userInput.weather = { 
+        //     inCelsius: res.current_observation.feelslike_c,
+        //     inFarenheit: res.current_observation.feelslike_f,
+        //     conditions: res.current_observation.weather
+        // };
+        userInput.displayWeather(res);
     });
 };
+
+userInput.displayWeather = function(weather) {
+    $('.modalWindowContent').prepend(`<p>It feels like ${weather.current_observation.feelslike_c}. The temperarure in F is ${weather.current_observation.feelslike_f}. The weather is ${weather.current_observation.weather}</p>`);
+}
 
 // Create function local to userInput object
 // to print attributes of each element of locations array on the screen
@@ -175,13 +190,12 @@ userInput.retrieveLocationCode = function (arrayNumber) {
                         getBirdsBasedOnLocation(locationCode);
                 }
             }
-
     });
 }
 
 
 userInput.displayBirdsInRegion = (birds) => {
-    $('.modalWindowContent').html(''); 
+    // $('.modalWindowContent').html(''); 
     birds.forEach((bird, i) => {
         const name = $('<h3>').text(bird);
         const birdContainer = $(`<div class="${bird.replace(' ','-').toLowerCase()}">`).append(name);
@@ -189,7 +203,7 @@ userInput.displayBirdsInRegion = (birds) => {
         // Call Xeno API to retrieve a sound for each bird
         getBirdSoundsBasedOnName(bird);
     });
-    $('.modalWindow').fadeIn();
+    // $('.modalWindow').fadeIn();
 }
 
 // BIRDS API
@@ -218,14 +232,15 @@ const getBirdsBasedOnLocation = (sightSpot) => {
 // function to trigger retrieveLocationCode function on click
 userInput.showBirds = function () {
     $('.destinationOption').on('click', 'button.option', function () {
+        userInput.indexOfButton = $(this).attr('id');
+        let finalDestination = userInput.destinationLocations.find(el => el.unique_id === Number(userInput.indexOfButton))
+        // Fade In Modal Window to be populated with appropriate info
+        $('.modalWindowContent').html(''); 
+        $('.modalWindow').fadeIn();
+        userInput.getUVIndex(finalDestination.lat, finalDestination.lon, userInput.currentDate);
+        userInput.getWeather(finalDestination.state, finalDestination.city);
         if(userInput.activity === "hiking") {
-            console.log(this);
-            userInput.indexOfButton = $(this).attr('id');
-            let finalDestination = userInput.destinationLocations.find(el => el.unique_id === Number(userInput.indexOfButton))
-            console.log(finalDestination);
             userInput.retrieveLocationCode(finalDestination.city);
-            userInput.getUVIndex(finalDestination.lat, finalDestination.lon, userInput.currentDate);
-            userInput.getWeather(finalDestination.state, finalDestination.city);
         }
         else if (userInput.activity === "camping") {
             console.log('You selected camping, no birds here');
