@@ -118,24 +118,28 @@ userInput.kilometersToMiles = (kilometers) => {
 }
 
 // Gets weather info about destination
-userInput.getWeather = function (province, city) {
+userInput.getWeather = function (feature, province, city) {
     $.ajax({
-        url: `http://api.wunderground.com/api/559369d256cad936/conditions/q/${province}/${city}.json`,
+        url: `http://api.wunderground.com/api/559369d256cad936/${feature}/q/${province}/${city}.json`,
         method: 'GET',
         dataType: 'json'
     }).then((res) => {
-        // return userInput.weather = { 
-        //     inCelsius: res.current_observation.feelslike_c,
-        //     inFarenheit: res.current_observation.feelslike_f,
-        //     conditions: res.current_observation.weather
-        // };
-        userInput.displayWeather(res);
+        if (feature === 'conditions') {
+            userInput.displayWeather(res.current_observation.feelslike_c, res.current_observation.feelslike_f, res.current_observation.weather);
+        } else if (feature === 'astronomy') {
+            userInput.displayMoonPhase(res.moon_phase.phaseofMoon, res.moon_phase.sunrise.hour, res.moon_phase.sunrise.minute, res.moon_phase.sunset.hour, res.moon_phase.sunset.minute);
+        }
     });
 };
 
-userInput.displayWeather = function(weather) {
-    $('.modalWindowContent').prepend(`<p>It feels like ${weather.current_observation.feelslike_c}. The temperarure in F is ${weather.current_observation.feelslike_f}. The weather is ${weather.current_observation.weather}</p>`);
+userInput.displayWeather = function(firstParameter, secondParameter, thirdParameter) {
+    $('.modalWindowContent').prepend(`<p>It feels like ${firstParameter}. The temperarure in F is ${secondParameter}. The weather is ${thirdParameter}</p>`);
 }
+
+userInput.displayMoonPhase = function (moonPhase, sunriseHour, sunriseMinute, sunsetHour, sunsetMinute) {
+    $('.modalWindowContent').prepend(`<p>Moon Phase is ${moonPhase}. Sunrise is at ${sunriseHour}:${sunriseMinute}. Sunset is at ${sunsetHour}:${sunsetMinute}</p>`);
+}
+
 
 // Create function local to userInput object
 // to print attributes of each element of locations array on the screen
@@ -238,12 +242,12 @@ userInput.showBirds = function () {
         $('.modalWindowContent').html(''); 
         $('.modalWindow').fadeIn();
         userInput.getUVIndex(finalDestination.lat, finalDestination.lon, userInput.currentDate);
-        userInput.getWeather(finalDestination.state, finalDestination.city);
+        userInput.getWeather('conditions', finalDestination.state, finalDestination.city);
         if(userInput.activity === "hiking") {
             userInput.retrieveLocationCode(finalDestination.city);
         }
         else if (userInput.activity === "camping") {
-            console.log('You selected camping, no birds here');
+            userInput.getWeather('astronomy', finalDestination.state, finalDestination.city);
         }
     });
 }
