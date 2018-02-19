@@ -1,4 +1,11 @@
+// Create global object to contain variables and functions
 const userInput = {};
+
+// Create function to convert miles to kilometers
+userInput.kilometersToMiles = (kilometers) => {
+    const distance = parseInt(kilometers) / 1.60934;
+    return distance;
+}
 
 // Initializa Firebase
 userInput.initFirebase = () => {
@@ -13,20 +20,21 @@ userInput.initFirebase = () => {
     firebase.initializeApp(config);
 }
 
-userInput.currentDate = new Date(); 
-
-// Retrieve User Input and call GoogleMaps API and TrailAPI
+// Create function to retrieve user input 
+// Function is called on form submission
+// Once called, Google Maps API is called using retrieved user input
 userInput.retrieveInputValues = function() {
     userInput.province = $('select[name=province]').val();
     userInput.city = $('input[name=city]').val();
     userInput.radius = userInput.kilometersToMiles($('select[name=radius]').val());
     userInput.activity = $('select[name=activity]').val();
     userInput.address = $('input[name=address]').val();
+    userInput.currentDate = new Date(); 
     userInput.getCoordinates(userInput.address, userInput.city, userInput.province);
 }
 
-
-// Create AJAX request to retrieve coordinates based on user's address
+// Create AJAX request to Google Maps API 
+// to retrieve coordinates based on user's address
 userInput.getCoordinates = (address, city, province) => {
     return $.ajax({
         url: "https://maps.googleapis.com/maps/api/geocode/json?",
@@ -40,12 +48,14 @@ userInput.getCoordinates = (address, city, province) => {
     .then(function (res) {
         userInput.lat = res.results[0]['geometry']['location']['lat'];
         userInput.lng = res.results[0]['geometry']['location']['lng'];
+// Once promise is resolved
+// call Trail API to retrieve available trails/ camping sites
         userInput.getLocationBasedOnUserInput(userInput.lat, userInput.lng, userInput.radius, userInput.activity);
-        // Call UVIndex API after coordinates are returned
-    })
+    });
 };
 
-// Create AJAX request to retrieve location information based on latitude, longitude, radius and activity type
+// Create AJAX request to Trail API 
+// to retrieve location trails/camping sites information
 userInput.getLocationBasedOnUserInput = (lat, long, radius, activity) => {
     return $.ajax({
         url: 'https://trailapi-trailapi.p.mashape.com/',
@@ -65,18 +75,81 @@ userInput.getLocationBasedOnUserInput = (lat, long, radius, activity) => {
         }
     })
     .then(function(res){
-        const data = res.places;
         userInput.destinationLocations = res.places;
-        // console.log(res.places);
-        // console.log(userInput.destinationLocation);
-        userInput.displayOptions(data);
+    // Once promise is resolved
+    // call function to display returned information on the screen
+        userInput.displayOptions(res.places);
+    });
+};
+
+// Create function to display all location returned from Trail API on the screen
+userInput.displayOptions = (locations) => {
+    let activitiesArray = [];
+    locations.forEach((location, i) => {
+        location.activities.forEach((activity) => {
+            activitiesArray.push(activity);
+        });
+    });
+    activitiesArray.sort(function (a, b) {
+        return parseFloat(b.rating) - parseFloat(a.rating) || b.length - a.length;
+    });
+    // If no results are returned
+    // display error message in a modal window
+    if (activitiesArray.length < 1) {
+        $('.landingPage').fadeOut(function(){
+            $('.errorMessage').fadeIn('slow');
+        });
+        $('.errorMessageBox').html('');
+        const errorMessageContent = 'There are no options within selected radius. Please select a larger radius.';
+        $('.errorMessageBox').append(`<p>${errorMessageContent}</p>`);
+        $('.fa-tree').on('click', function () {
+            $('.errorMessage').fadeOut('slow', function() {
+                $('.landingPage').fadeIn();
+            });
+        });
+    }
+    // If results are returned
+    // display them on the page
+    else {
+        for (i = 0; i < activitiesArray.length; i++) {
+            const name = $(`<button class=option id="${activitiesArray[i].place_id}">`).text(activitiesArray[i].name);
+            const direction = $('<p>').text(activitiesArray[i].description);
+            const length = $('<p>').text(`Trail Length is ${activitiesArray[i].length} km`);
+            const trailContainer = $(`<div class=itemContainer${activitiesArray[i].place_id}>`).append(name, length, direction);
+            $('.destinationOption').append(trailContainer);
+            $('.landingPage').fadeOut(function() {
+                $('.destinationOption').fadeIn('slow');
+            });
+        }
+    }
+}
+
+// Create function to display bird/ weather/ moonPhase/ UV Index infor in modal window
+userInput.showBirds = function () {
+    $('.destinationOption').on('click', 'button.option', function () {
+        userInput.indexOfButton = $(this).attr('id');
+        let finalDestination = userInput.destinationLocations.find(el => el.unique_id === Number(userInput.indexOfButton))
+// Clear out Modal Window before populating data 
+// to ensure data is not duplicated when access for the second time
+        $('.modalWindowContent').html('');
+// Display Modal Window
+        $('.modalWindow').fadeIn('slow');
+// Call uvIndex and weather API and diplay in Modal WIndow
+        userInput.getUVIndex(finalDestination.lat, finalDestination.lon, userInput.currentDate);
+        userInput.getWeather('conditions', finalDestination.state, finalDestination.city);
+// Call eBird API only if hiking is selected as preferred type of activity
+        if (userInput.activity === "hiking") {
+            userInput.retrieveLocationCode(finalDestination.city);
+        }
+// Call Moon Phase only if camping is selected as preferred type of activity
+        else if (userInput.activity === "camping") {
+            userInput.getWeather('astronomy', finalDestination.state, finalDestination.city);
+        }
     });
 }
 
-
-// Create AJAX request to retrieve UV Index
-
-
+// Create AJAX request to openUV API
+// to retrieve UV Index for the selected destination
 userInput.getUVIndex = (lat, long, today) => {
     return $.ajax({
         url: 'http://proxy.hackeryou.com',
@@ -91,33 +164,25 @@ userInput.getUVIndex = (lat, long, today) => {
             },
             proxyHeaders: {
                 'x-access-token': '37e7988a5828e5d93d5f9c479b2ec105'
-            },
+            }
         }
     })
     .then(function (res) {
         destinationUVMax = res.result.uv_max;
-        console.log(destinationUVMax);
-        // Call function to display UV Max Index in Modal window
+// Once promise is resolved
+// call function to display UV Max Index in Modal Window
         userInput.displayUVIndex(res.result.uv_max);
     });
 }
 
 // Create function to display UV Index in the Modal Window
-
 userInput.displayUVIndex = function(uvIndex) {
     $('.modalWindowContent').prepend(`<p>UV Index is ${uvIndex}</p>`);
 }
 
-
-
-// Convert miles to kilometers
-
-userInput.kilometersToMiles = (kilometers) => {
-    const distance = parseInt(kilometers) / 1.60934;
-    return distance;
-}
-
-// Gets weather info about destination
+// Create AJAX request to wunderGround API
+// to retrieve weather conditions ot moon phase information
+// where returned result is determined by 'feature' parameter
 userInput.getWeather = function (feature, province, city) {
     $.ajax({
         url: `http://api.wunderground.com/api/559369d256cad936/${feature}/q/${province}/${city}.json`,
@@ -125,92 +190,52 @@ userInput.getWeather = function (feature, province, city) {
         dataType: 'json'
     }).then((res) => {
         if (feature === 'conditions') {
+// Once promise for feature === 'conditions' is resolved
+// call function to display weather conditions in the Modal Window
             userInput.displayWeather(res.current_observation.feelslike_c, res.current_observation.feelslike_f, res.current_observation.weather);
         } else if (feature === 'astronomy') {
+// Once promise for feature === 'astronomy' is resolved
+// call function to display moon phase info in the Modal Window
             userInput.displayMoonPhase(res.moon_phase.phaseofMoon, res.moon_phase.sunrise.hour, res.moon_phase.sunrise.minute, res.moon_phase.sunset.hour, res.moon_phase.sunset.minute);
         }
     });
 };
 
+// Create function to display weather conditions in Modal Window
 userInput.displayWeather = function(firstParameter, secondParameter, thirdParameter) {
-    $('.modalWindowContent').prepend(`<p>It feels like ${firstParameter}. The temperarure in F is ${secondParameter}. The weather is ${thirdParameter}</p>`);
+    $('.modalWindowContent').prepend(`<p>It feels like ${firstParameter}°C/ ${secondParameter}°F outside. The weather is ${thirdParameter}</p>`);
 }
 
+// Create function to display moon phase info conditions in Modal Window
 userInput.displayMoonPhase = function (moonPhase, sunriseHour, sunriseMinute, sunsetHour, sunsetMinute) {
-    $('.modalWindowContent').prepend(`<p>Moon Phase is ${moonPhase}. Sunrise is at ${sunriseHour}:${sunriseMinute}. Sunset is at ${sunsetHour}:${sunsetMinute}</p>`);
+    $('.modalWindowContent').prepend(`<p>Moon Phase is ${moonPhase}. Sunrise is at ${sunriseHour}:${sunriseMinute}AM. Sunset is at ${sunsetHour}:${sunsetMinute}PM</p>`);
 }
 
-
-// Create function local to userInput object
-// to print attributes of each element of locations array on the screen
-userInput.displayOptions = (locations) => {
-    let activitiesArray = [];
-    locations.forEach((location,i) => {
-        location.activities.forEach((activity) =>{
-            activitiesArray.push(activity);
-        });
-    });
-
-    activitiesArray.sort(function(a,b){
-        return parseFloat(b.rating) - parseFloat(a.rating) || b.length - a.length;
-    });
-    console.log(activitiesArray);
-
-
-    if ( activitiesArray.length < 1) {
-        $('.landingPage').fadeOut();
-        $('.errorMessage').fadeIn(200);
-        const errorMessageContent = 'There are no options within selected radius. Please select a larger radius.';
-        $('.errorMessage').append(errorMessageContent);
-        $('.fa-tree').on('click', function () {
-            $('.errorMessage').fadeOut();
-            $('.landingPage').fadeIn();
-        });
-    } else { 
-    for (i=0; i<activitiesArray.length;i++) {
-        const name = $(`<button class=option id="${activitiesArray[i].place_id}">`).text(activitiesArray[i].name);
-        const direction = $('<p>').text(activitiesArray[i].description);
-        const rating = $('<p>').text(`Trail Raiting is ${activitiesArray[i].rating}`);
-        const length = $('<p>').text(`Trail Length is ${activitiesArray[i].length} km`);
-        const trailContainer = $(`<div class=itemContainer${activitiesArray[i].place_id}>`).append(name, rating, length, direction);
-        $('.destinationOption').append(trailContainer);
-        $('.landingPage').fadeOut(1000);
-        $('.destinationOption').fadeIn();
-      }
-    }
-}
-
-// Create function to retrieve location code from firebase based on user input
+// In order to match (country; city) of selected hiking trail/ camping site location to eBird API location input parameter
+// Create function to retrieve location code from firebase based on country code of Canada and city value corresponding to selected option
 userInput.retrieveLocationCode = function (arrayNumber) {
     const dbRef = firebase.database().ref('/codes');
     dbRef.on('value', (item) => {
         const codeObject = item.val();
         window.dataObj = codeObject;
-        console.log(arrayNumber);
-            for (let key in codeObject) {
-                if (codeObject[key]["country-code"] === 'CA' && codeObject[key]["name"] === arrayNumber ) {
-                        console.log(codeObject[key]);
-                        let locationCode = codeObject[key]["subnational2-code"];
-                        getBirdsBasedOnLocation(locationCode);
-                }
+        userInput.locationCode = null;
+        for (let key in codeObject) {
+            if (codeObject[key]["country-code"] === 'CA' && codeObject[key]["name"] === arrayNumber ) {
+                userInput.locationCode = codeObject[key]["subnational2-code"];
+// Once country code is retrieved
+// call function to trigger AJAX request to eBird API
+                getBirdsBasedOnLocation(userInput.locationCode);
             }
+        }
+        console.log(userInput.locationCode);
+        if (userInput.locationCode == null) {
+            $('.modalWindowContent').append(`<p>Unfortunately, no birds have been recorded in this area.</p>`);
+        }
     });
 }
 
-
-userInput.displayBirdsInRegion = (birds) => {
-    // $('.modalWindowContent').html(''); 
-    birds.forEach((bird, i) => {
-        const name = $('<h3>').text(bird);
-        const birdContainer = $(`<div class="${bird.replace(' ','-').toLowerCase()}">`).append(name);
-        $('.modalWindowContent').append(birdContainer);
-        // Call Xeno API to retrieve a sound for each bird
-        getBirdSoundsBasedOnName(bird);
-    });
-    // $('.modalWindow').fadeIn();
-}
-
-// BIRDS API
+// Create AJAX request to eBird API
+// to retrieve birds recently seen around selected location
 const getBirdsBasedOnLocation = (sightSpot) => {
     return $.ajax({
         url: 'http://ebird.org/ws1.1/data/notable/region/recent',
@@ -221,49 +246,36 @@ const getBirdsBasedOnLocation = (sightSpot) => {
         },
         data: {
             r: sightSpot,
+// Limit result to 5 birds
             maxResults: 5,
             fmt: 'json'
         }
     }).then(function (res) {
-        console.log(res);
+// Create new array to include unique bird names only 
         let uniqueBirds = [...new Set(res.map(item => item.comName))];
-        console.log(uniqueBirds);
+// Once promise is resolved
+// call function to display birds in Modal Window
         userInput.displayBirdsInRegion(uniqueBirds);
     });
 }
 
-
-// function to trigger retrieveLocationCode function on click
-userInput.showBirds = function () {
-    $('.destinationOption').on('click', 'button.option', function () {
-        userInput.indexOfButton = $(this).attr('id');
-        let finalDestination = userInput.destinationLocations.find(el => el.unique_id === Number(userInput.indexOfButton))
-        // Fade In Modal Window to be populated with appropriate info
-        $('.modalWindowContent').html(''); 
-        $('.modalWindow').fadeIn();
-        userInput.getUVIndex(finalDestination.lat, finalDestination.lon, userInput.currentDate);
-        userInput.getWeather('conditions', finalDestination.state, finalDestination.city);
-        if(userInput.activity === "hiking") {
-            userInput.retrieveLocationCode(finalDestination.city);
-        }
-        else if (userInput.activity === "camping") {
-            userInput.getWeather('astronomy', finalDestination.state, finalDestination.city);
-        }
-    });
+// Create function to display birds returned from eBird API in Modal Window
+userInput.displayBirdsInRegion = (birds) => {
+    if (birds.length > 0) {
+        birds.forEach((bird, i) => {
+            const name = $('<h3>').text(bird);
+            const birdContainer = $(`<div class="${bird.replace(' ','-').toLowerCase()}">`).append(name);
+            $('.modalWindowContent').append(birdContainer);
+            getBirdSoundsBasedOnName(bird);
+        });
+    }
+    else {
+        $('.modalWindowContent').append(`<p>Unfortunately, no birds have been recorded in this area.</p>`);
+    }
 }
 
-// Function to display sounds
-userInput.displayBirdSounds = (recordings) => {
-        console.log(recordings);
-        const birdSound = $('<iframe>').attr('src', `${recordings[0].url}/embed?simple=1`);
-        let birdSoundContainer = recordings[0].en.replace(' ', '-').toLowerCase();
-        console.log(`created class is ${birdSoundContainer}`);
-        const soundContainer = $('<div>').append( birdSound);
-        $(`.${birdSoundContainer}`).append(soundContainer);
-}
-
-// BIRDS SOUNDS API
-
+// Create AJAX request to Xeno-Canto API
+// to retrieve birds' sounds based on list of birds' names seen in the area
 const getBirdSoundsBasedOnName = (birdName) => {
     return $.ajax({
         url: 'http://proxy.hackeryou.com',
@@ -276,65 +288,38 @@ const getBirdSoundsBasedOnName = (birdName) => {
             }
         }
     }).then(function (res) {
-        console.log(res.recordings);
-        recordingsArray = res.recordings;
-        userInput.displayBirdSounds(recordingsArray);
+// Once promise is resolved
+// call function to display bird sounds in mOdal Window
+        userInput.displayBirdSounds(res.recordings);
     });
 }
 
-
-
-// Enables navigation
-// userInput.nextScreen = () => {
-//     $('input[type=submit]').on('click', function (event) {
-//         currentScreen = $(this).attr('id');
-//         if (currentScreen === 'firstInput') {
-//             $('.landingPage').fadeOut(1000);
-//             $('.destinationOption').fadeIn();
-//         }
-// WILL NEED TO REBUILD FOR STEP 2
-        // } else if (currentScreen === 'secondInput' && userInput.activity === 'camping') {
-        //     $('.uvInfo').fadeOut(1000);
-        //     $('.camping').fadeIn();
-        // }
-    // });
-// });
-// }
-
-
-
-userInput.init = function () {
-
+// Create function to display bird sounds
+userInput.displayBirdSounds = (recordings) => {
+    const birdSound = $('<iframe>').attr('src', `${recordings[0].url}/embed?simple=1`);
+// Normalize bird names
+    let birdSoundContainer = recordings[0].en.replace(' ', '-').toLowerCase();
+    const soundContainer = $('<div>').append(birdSound);
+    $(`.${birdSoundContainer}`).append(soundContainer);
 }
 
 
-$('.fa-times').on('click', function () {
-    $('.modalWindow').fadeOut();
-});
-// Calls function that enables navigation
-// userInput.nextScreen();
-
-
-$(function () {
+userInput.events = function () {
+// Create function to allow user to close Modal Window
+    $('.fa-times').on('click', function () {
+        $('.modalWindow').fadeOut();
+    });
     userInput.showBirds();
-    // userInput.init();
+}
+
+// When document is ready..
+$(function () {
     userInput.initFirebase();
+    userInput.events();
+// On form submission..
     $('form').on('submit', function (event) {
         event.preventDefault();
-        // Retrieve user input and call TrailAPI & Display results on the page
+        // Retrieve user input
         userInput.retrieveInputValues();
     })
 });
-
-// Create async function -DISREGARD (NOT WORKING/ HERE FOR FUTURE REFERENCE)
-// async function getData() {
-//     const locationCoordinates = await userInput.getCoordinates(userInput.address, userInput.city, userInput.province);
-//     userInput.lat = locationCoordinates.results[0]['geometry']['location']['lat'];
-//     userInput.lng = locationCoordinates.results[0]['geometry']['location']['lng'];
-//     console.log(`Here are the coordinates: ${userInput.lat}, ${userInput.lng}`);
-
-
-//     const locationsList = await userInput.getLocationBasedOnUserInput(43.6567919, -79.4609322, 5, 'hiking');
-
-//     userInput.displayOptions(locationsList.places);
-// };
