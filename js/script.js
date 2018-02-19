@@ -23,12 +23,10 @@ userInput.retrieveInputValues = function() {
     userInput.activity = $('select[name=activity]').val();
     userInput.address = $('input[name=address]').val();
     userInput.getCoordinates(userInput.address, userInput.city, userInput.province);
-    userInput.getWeather(userInput.province, userInput.city);
+    // userInput.getWeather(userInput.province, userInput.city);
 }
 
-// NOEL: UPDATE
-userInput.getDestinationAddress = {
-}
+
 
 // Create AJAX request to retrieve coordinates based on user's address
 userInput.getCoordinates = (address, city, province) => {
@@ -47,9 +45,10 @@ userInput.getCoordinates = (address, city, province) => {
         console.log(userInput.lat, userInput.lng);
         userInput.getLocationBasedOnUserInput(userInput.lat, userInput.lng, userInput.radius, userInput.activity);
         // Call UVIndex API after coordinates are returned
-        userInput.getUVIndex(userInput.lat, userInput.lng, userInput.currentDate);
+        // userInput.getUVIndex(userInput.lat, userInput.lng, userInput.currentDate);
     })
 };
+
 
 // Create AJAX request to retrieve location information based on latitude, longitude, radius and activity type
 userInput.getLocationBasedOnUserInput = (lat, long, radius, activity) => {
@@ -101,7 +100,7 @@ userInput.getUVIndex = (lat, long, today) => {
         }
     })
     .then(function (res) {
-        console.log(res);
+        return userInput.maxUV = res.result.uv_max;
     });
 }
 
@@ -127,6 +126,8 @@ userInput.getWeather = function (province, city) {
     });
 };
 
+userInput.trailDivs = [];
+
 // Create function local to userInput object
 // to print attributes of each element of locations array on the screen
 userInput.displayOptions = (locations) => {
@@ -144,21 +145,57 @@ userInput.displayOptions = (locations) => {
         return parseFloat(b.rating) - parseFloat(a.rating) || b.length - a.length;
     });
     console.log(activitiesArray);
-
-    if ( activitiesArray.length < 1) {
-        alert('Sorry, there are no results. Please select a higher search radius.');
-    } else { 
     for (i=0; i<activitiesArray.length;i++) {
         const name = $(`<button class=option id="${activitiesArray[i].place_id}">`).text(activitiesArray[i].name);
         const direction = $('<p>').text(activitiesArray[i].description);
-        const rating = $('<p>').text(`Trail Raiting is ${activitiesArray[i].rating}`);
+        const rating = $('<p>').text(`Trail Rating is ${activitiesArray[i].rating}`);
         const length = $('<p>').text(`Trail Length is ${activitiesArray[i].length} km`);
         const trailContainer = $(`<div class=itemContainer${activitiesArray[i].place_id}>`).append(name, rating, length, direction);
         // const container = $('.locationOptions').append(trailContainer);
-        $('.hiking').append(trailContainer);
-      }
+        $('.hiking').append(trailContainer);   
+        userInput.trailDivs.push(trailContainer);
+        userInput.getWeatherAndUV();     
     }
 }
+
+userInput.getDestinationAddress = (desc) => {
+    const description = desc;
+    const descriptionStart = description.search('near') + 5;
+    const descriptionMiddle = description.search(',');
+    const descriptionEnd = description.search('.') - 1;
+
+    return userInput.destination = {
+        city: desc.slice(descriptionStart, descriptionMiddle),
+        prov: desc.slice(descriptionMiddle + 2, descriptionEnd)
+    }
+}
+
+userInput.convertProv = (prov) => {
+    if (prov === 'ON') {
+        return newProv = 'Ontario';
+    }
+}
+
+userInput.getWeatherAndUV = () => {
+    userInput.trailDivs.forEach(function(i) {
+        i.on('click', function() {
+            const destinationParagraph = i.find('p:last-of-type').text();
+            userInput.getDestinationAddress(destinationParagraph);
+            userInput.convertProv(userInput.destination.prov);
+            userInput.getWeather(newProv, userInput.destination.city);
+        })
+    }
+
+
+        // $('.hiking').on('click', function() {
+        //     console.log('test');
+        //     userInput.getDestinationAddress();
+        //     // userInput.getWeather();
+        //     // userInput.getUVIndex();
+        // });
+    
+    )}
+
 
 // Create function to retrieve location code from firebase based on user input
 userInput.retrieveLocationCode = function (arrayNumber) {
@@ -166,7 +203,7 @@ userInput.retrieveLocationCode = function (arrayNumber) {
     dbRef.on('value', (item) => {
         const codeObject = item.val();
         window.dataObj = codeObject;
-        console.log(arrayNumber);
+        // console.log(arrayNumber);
         // console.log(codeObject);
             for (let key in codeObject) {
                 // console.log(codeObject);
@@ -299,15 +336,8 @@ userInput.nextScreen = () => {
         currentScreen = $(this).attr('id');
         if (currentScreen === 'firstInput') {
             $('.landingPage').fadeOut(1000);
-            $('.uvInfo').fadeIn();
-            // const name = $(`<button class=option id="${activitiesArray[i].place_id}">`).text(activitiesArray[i].name);
-            // const direction = $('<p>').text(activitiesArray[i].description);
-            // const rating = $('<p>').text(`Trail Raiting is ${activitiesArray[i].rating}`);
-            // const length = $('<p>').text(`Trail Length is ${activitiesArray[i].length} km`);
-            // const trailContainer = $(`<div class=itemContainer${activitiesArray[i].place_id}>`).append(name, rating, length, direction);
-            // const container = $('.locationOptions').append(trailContainer);
-            // $('.hiking').append(container);            
-
+            $('.hiking').fadeIn();
+            userInput.secondScreen();
         } else if (currentScreen === 'secondInput' && userInput.activity === 'hiking') {
             $('.uvInfo').fadeOut(1000);
             $('.hiking').fadeIn();
@@ -318,7 +348,27 @@ userInput.nextScreen = () => {
     });
 }
 
+userInput.secondScreen = () => {
+    const secondTitle = $(`<h1>Weather & UV Status</h1>`)
+    const titleUV = $(`<h2>UV Index</h2>`);
+    const maxUV = $(`<p>The maximum UV Index is ${userInput.maxUV}.</p>`)
+    const titleWeather = $(`<h2>Weather</h2>`);
+    // const condition = $(`<p>The maximum UV Index is ${userInput.weather.conditions}.</p>`);
 
+        //     const name = $(`<button class=option id="${activitiesArray[i].place_id}">`).text(activitiesArray[i].name);
+        // const direction = $('<p>').text(activitiesArray[i].description);
+        // const rating = $('<p>').text(`Trail Raiting is ${activitiesArray[i].rating}`);
+        // const length = $('<p>').text(`Trail Length is ${activitiesArray[i].length} km`);
+        // const weatherContainer = $(`<div class=itemContainer${activitiesArray[i].place_id}>`).append(name, rating, length, direction);
+
+    $('.uvInfo').prepend(secondTitle, titleUV, maxUV, titleWeather);
+
+    // return userInput.weather = {
+    //     inCelsius: res.current_observation.feelslike_c,
+    //     inFarenheit: res.current_observation.feelslike_f,
+    //     conditions: res.current_observation.weather
+
+}
 
 userInput.init = function () {
 
@@ -328,6 +378,7 @@ userInput.init = function () {
 $('.fa-times').on('click', function () {
     $('.modalWindow').fadeOut();
 });
+
 // Calls function that enables navigation
 userInput.nextScreen();
 
@@ -345,7 +396,6 @@ $(function () {
         // userInput.showBirds();
         // userInput.retrieveLocationCode();
         // getBirdSoundsBasedOnName('Owl');
-
     })
 });
 
