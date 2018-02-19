@@ -23,12 +23,8 @@ userInput.retrieveInputValues = function() {
     userInput.activity = $('select[name=activity]').val();
     userInput.address = $('input[name=address]').val();
     userInput.getCoordinates(userInput.address, userInput.city, userInput.province);
-    userInput.getWeather(userInput.province, userInput.city);
 }
 
-// NOEL: UPDATE
-userInput.getDestinationAddress = {
-}
 
 // Create AJAX request to retrieve coordinates based on user's address
 userInput.getCoordinates = (address, city, province) => {
@@ -44,10 +40,8 @@ userInput.getCoordinates = (address, city, province) => {
     .then(function (res) {
         userInput.lat = res.results[0]['geometry']['location']['lat'];
         userInput.lng = res.results[0]['geometry']['location']['lng'];
-        console.log(userInput.lat, userInput.lng);
         userInput.getLocationBasedOnUserInput(userInput.lat, userInput.lng, userInput.radius, userInput.activity);
         // Call UVIndex API after coordinates are returned
-        userInput.getUVIndex(userInput.lat, userInput.lng, userInput.currentDate);
     })
 };
 
@@ -101,7 +95,8 @@ userInput.getUVIndex = (lat, long, today) => {
         }
     })
     .then(function (res) {
-        console.log(res);
+        destinationUVMax = res.result.uv_max;
+        console.log(destinationUVMax);
     });
 }
 
@@ -229,6 +224,8 @@ userInput.showBirds = function () {
             let finalDestination = userInput.destinationLocations.find(el => el.unique_id === Number(userInput.indexOfButton))
             console.log(finalDestination);
             userInput.retrieveLocationCode(finalDestination.city);
+            userInput.getUVIndex(finalDestination.lat, finalDestination.lon, userInput.currentDate);
+            userInput.getWeather(finalDestination.state, finalDestination.city);
         }
         else if (userInput.activity === "camping") {
             console.log('You selected camping, no birds here');
