@@ -279,17 +279,35 @@ form {
     -ms-flex-preferred-size: 45%;
     flex-basis: 45%;
     margin-bottom: 50px;
-    border: 2px solid #cddc39; }
+    border: 10px solid #ffffff;
+    -webkit-box-shadow: 10px 10px #000000;
+    box-shadow: 10px 10px #000000;
+    background-image: url("../images/forest.jpg");
+    background-position: center top;
+    background-size: cover; }
     .destinationOption div button {
       margin-bottom: 20px;
       width: 100%;
       background-color: #7cb342;
       text-align: left; }
     .destinationOption div p {
-      margin: 15px 0 15px 10px; }
+      margin: 15px 0 15px 10px;
+      padding: 0 12px;
+      text-shadow: 1px 1px #000000;
+      font-size: 1.8rem; }
   .destinationOption .option {
-    font-size: 2rem;
-    color: #e65100; }
+    font-size: 2.5rem;
+    color: #000000;
+    text-align: center;
+    text-shadow: 2px 2px 1px #fff;
+    font-family: 'Oswald', sans-serif;
+    line-height: 3rem;
+    margin: 20px;
+    padding: 10px;
+    width: 100px;
+    background-color: yellow;
+    -webkit-box-shadow: 4px 4px #000000;
+    box-shadow: 4px 4px #000000; }
 
 .modalWindow {
   position: absolute;
