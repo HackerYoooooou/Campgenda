@@ -96,10 +96,10 @@ userInput.displayOptions = (locations) => {
     // If no results are returned
     // display error message in a modal window
     if (activitiesArray.length < 1) {
+        $('.errorMessageBox').html('');
         $('.landingPage').fadeOut(function(){
             $('.errorMessage').fadeIn('slow');
         });
-        $('.errorMessageBox').html('');
         const errorMessageContent = 'There are no options within selected radius. Please select a larger radius.';
         $('.errorMessageBox').append(`<p>${errorMessageContent}</p>`);
         $('.fa-tree').on('click', function () {
