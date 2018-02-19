@@ -1,4 +1,4 @@
-.hiking {
+.destinationOption {
     flex-wrap: wrap;
     flex-direction: row;
     justify-content: space-between;
@@ -52,10 +52,12 @@
             color: snow;
         }
     }
-    div {
-        float: left;
-        width: 45%;
-        margin-right: 25px;
+    .modalWindowContent {
+        div {
+            float: left;
+            width: 45%;
+            margin-right: 25px;
+        }
     }
 }
 
