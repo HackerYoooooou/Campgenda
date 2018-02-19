@@ -108,17 +108,25 @@ userInput.kilometersToMiles = (kilometers) => {
 }
 
 // Gets weather info about destination
-userInput.getWeather = function (province, city) {
+userInput.getWeather = function (feature, province, city) {
     $.ajax({
-        url: `http://api.wunderground.com/api/559369d256cad936/conditions/q/${province}/${city}.json`,
+        url: `http://api.wunderground.com/api/559369d256cad936/${feature}/q/${province}/${city}.json`,
         method: 'GET',
         dataType: 'json'
     }).then((res) => {
-        return userInput.weather = { 
-            inCelsius: res.current_observation.feelslike_c,
-            inFarenheit: res.current_observation.feelslike_f,
-            conditions: res.current_observation.weather
-        };
+        if (feature === 'conditions') {
+            return userInput.weather = { 
+                inCelsius: res.current_observation.feelslike_c,
+                inFarenheit: res.current_observation.feelslike_f,
+                conditions: res.current_observation.weather
+            };
+        } else if (feature === 'astronomy') {
+            return userInput.moon = {
+                phase: res.moon_phase.phaseofMoon,
+                sunrise: res.moon_phase.sunrise,
+                sunset: res.moon_phase.sunset
+            }
+        }
     });
 };
 
@@ -225,7 +233,8 @@ userInput.showBirds = function () {
             console.log(finalDestination);
             userInput.retrieveLocationCode(finalDestination.city);
             userInput.getUVIndex(finalDestination.lat, finalDestination.lon, userInput.currentDate);
-            userInput.getWeather(finalDestination.state, finalDestination.city);
+            userInput.getWeather('conditions', finalDestination.state, finalDestination.city);
+            userInput.getWeather('astronomy',finalDestination.state, finalDestination.city);
         }
         else if (userInput.activity === "camping") {
             console.log('You selected camping, no birds here');
