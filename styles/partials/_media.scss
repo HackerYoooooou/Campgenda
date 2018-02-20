@@ -16,15 +16,15 @@
                 margin-bottom: 30px;
             }
         }
+        form {
+            justify-content: center;
+        }
     }
 
     /* Landscape phone to portrait tablet */
     @media (max-width: 768px) {
         .destinationOption div {
             flex-basis: 100%;
-        }
-        form {
-            justify-content: center;
         }
         input[name="city"] {
             max-width: 60%;
