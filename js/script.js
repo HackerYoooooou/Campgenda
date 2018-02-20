@@ -101,7 +101,7 @@ userInput.displayOptions = (locations) => {
             $('.errorMessage').fadeIn('slow');
         });
         const errorMessageContent = 'There are no options within selected radius. Please select a larger radius.';
-        $('.errorMessageBox').append(`<p>${errorMessageContent}</p>`);
+        $('.errorMessageBox').append(`<p>${errorMessageContent}</p><p><a href="index.html" class="goBack">Go back.</a></p>`);
         $('.fa-tree').on('click', function () {
             $('.errorMessage').fadeOut('slow', function() {
                 $('.landingPage').fadeIn();
@@ -289,7 +289,7 @@ const getBirdSoundsBasedOnName = (birdName) => {
         }
     }).then(function (res) {
 // Once promise is resolved
-// call function to display bird sounds in mOdal Window
+// call function to display bird sounds in modal Window
         userInput.displayBirdSounds(res.recordings);
     });
 }
@@ -299,8 +299,23 @@ userInput.displayBirdSounds = (recordings) => {
     const birdSound = $('<iframe>').attr('src', `${recordings[0].url}/embed?simple=1`);
 // Normalize bird names
     let birdSoundContainer = recordings[0].en.replace(' ', '-').toLowerCase();
-    const soundContainer = $('<div>').append(birdSound);
+    const soundContainer = $('<div class="soundDisplay">').append(birdSound);
     $(`.${birdSoundContainer}`).append(soundContainer);
+}
+
+userInput.smore = () => {
+    $('#bottomLayer').on('click', function () {
+        $('#chocLayer').toggle();
+    });
+
+    $('#chocLayer').on('click', function () {
+        $('#marshLayer').toggle();
+    });
+
+    $('#marshLayer').on('click', function () {
+        $('#topLayer').toggle();
+    });
+
 }
 
 
@@ -310,6 +325,7 @@ userInput.events = function () {
         $('.modalWindow').fadeOut();
     });
     userInput.showBirds();
+    userInput.smore();
 }
 
 // When document is ready..
@@ -321,5 +337,9 @@ $(function () {
         event.preventDefault();
         // Retrieve user input
         userInput.retrieveInputValues();
+    })
+    $('input[type=text]').on('focus', function () {
+        $(this).val('');
+
     })
 });
