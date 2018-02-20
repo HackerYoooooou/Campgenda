@@ -16,15 +16,15 @@
     <main>
         <div class="wrapper">
             <section class="landingPage">
-                <h1>step 1: where are you going?</h1>
+                <h1>Search For Trails:</h1>
                 <form>
-                    <p>Search for</p>
+                    <p>I'm looking for </p>
                     <select name="activity">
                         <option value="hiking">hiking</option>
                         <option value="camping">camping</option>
                     </select>
                     <p>sites in</p>
-                    <input type="text" name="city" placeholder="city" value="Toronto">
+                    <input type="text" name="city" placeholder="city" value="City">
                     <select name="province">
                         <option value="Ontario">Ontario</option>
                         <option value="Quebec">Quebec</option>
@@ -39,25 +39,26 @@
                     </select>
                     <p>within</p>
                     <select name="radius">
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                        <option value="20">20</option>
-                        <option value="30">30</option>
-                        <option value="40">40</option>
-                        <option value="50">50</option>
+                        <option value="5">5 km</option>
+                        <option value="10">10 km</option>
+                        <option value="20">20 km</option>
+                        <option value="30">30 km</option>
+                        <option value="40">40 km</option>
+                        <option value="50">50 km</option>
                     </select>
-                    <p>km of</p>
-                    <input type="text" name="address" placeholder="address" value="1001 Bathurst Street">
+                    <p>of</p>
+                    <input type="text" name="address" placeholder="address" value="Departing address (i.e, 283 Queen Street West)">
                     <input type="submit" name="" id="firstInput" value="Next">
                 </form>
             </section>
             <section class="destinationOption hide">
+                <h1>Choose A Destination For Info:</h1>
                 <div class="modalWindow hide">
-                        <a href="#">
-                            <i class="fa fa-times"></i>
-                        </a>
-                        <div class="modalWindowContent">
-                        </div>
+                    <a href="#">
+                        <i class="fa fa-times"></i>
+                    </a>
+                    <div class="modalWindowContent">
+                    </div>
                 </div>
             </section>
             <section class="errorMessage hide">
@@ -69,7 +70,10 @@
                 </div>
             </section>
             <aside>
-                <img src="images/smoresCracker.png" alt="">
+                <img src="images/smoresCracker.png" alt="" id="topLayer" class="hide">
+                <img src="images/smoresMarshmallow.png" alt="" id="marshLayer" class="hide">
+                <img src="images/smoresChocolate.png" alt="" id="chocLayer" class="hide">
+                <img src="images/smoresCracker.png" alt="" id="bottomLayer">
             </aside>
             <!-- <section class="errorMessage hide">
                 <a href="#">

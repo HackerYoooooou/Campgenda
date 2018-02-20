@@ -1,0 +1,52 @@
+/* Portrait tablet and small desktops */
+    @media (max-width: 940px) {
+        aside {
+            visibility: hidden;
+        }
+        section {
+            flex-basis: 100%;
+            text-align: center;
+        }
+        form select {
+            padding: 10px;
+        }
+        .modalWindow .modalWindowContent {
+            div {
+                width: 100%;
+                margin-bottom: 30px;
+            }
+        }
+    }
+
+    /* Landscape phone to portrait tablet */
+    @media (max-width: 768px) {
+        .destinationOption div {
+            flex-basis: 100%;
+        }
+        form {
+            justify-content: center;
+        }
+        input[name="city"] {
+            max-width: 60%;
+        }
+        input[select="province"] {
+            max-width: 60%;
+            text-align: right;
+        }
+    }
+
+
+    /* Landscape phones and down */
+    @media (max-width: 574px) {
+        header img {
+            width: 90%;
+            margin: 0 auto;
+        }
+        form input[name="address"] {
+            min-width: initial;
+        }
+        .modalWindow {
+            width: 100%;
+            padding: 0;
+        }        
+    }

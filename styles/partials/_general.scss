@@ -40,3 +40,39 @@ button {
     // opacity: 0;
     display: none;
 }
+
+.errorMessageBox {
+    p {
+        font-size: 5rem;
+    }
+}
+
+a.goBack:visited {
+    color: yellow;
+}
+
+a.goBack:hover, a.goBack:focus {
+    color: firebrick;
+}
+
+#topLayer, #marshLayer, #chocLayer, #bottomLayer {
+    position: absolute;
+}
+#topLayer {
+    z-index: 9999;
+    top: 10px;
+}
+#marshLayer {
+    z-index: 8999;
+    top: 20px;
+}
+#chocLayer {
+    z-index: 7999;
+    top: 45px;
+}
+#bottomLayer {
+    z-index: 6999;
+    top: 40px;
+}
+
+

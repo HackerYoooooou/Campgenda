@@ -18,35 +18,43 @@
             text-align: left;
         }
         p {
-            margin: 15px 0 15px 10px;
-            padding: 0 12px;
+            margin: 15px 0 15px 20px;
+            padding: 10px 12px;
             text-shadow: 1px 1px #000000;
             font-size: 1.8rem;
+            background-color: rgba(0, 0, 0, 0.4);
         }
     }
     .option {
-    font-size: 2.5rem;
-    color: #000000;
-    text-align: center;
-    text-shadow: 2px 2px 1px #fff;
-    font-family: 'Oswald', sans-serif;
-    line-height: 3rem;
-    margin: 20px;
-    padding: 10px;
-    width: 100px;
-    background-color: yellow;
-    box-shadow: 4px 4px #000000;
+        font-size: 2.5rem;
+        color: #000000;
+        text-align: center;
+        text-shadow: 2px 2px 1px #fff;
+        font-family: 'Oswald', sans-serif;
+        line-height: 3rem;
+        margin: 20px;
+        padding: 10px;
+        background-color: yellow;
+        box-shadow: 4px 4px #000000;
+        &:hover, &:focus {
+            background-color: #000000;
+            color: #ffffff;
+            box-shadow: 4px 4px #ffffff;
+            text-shadow: 2px 2px 1px yellow;
+        }
     }
 }
 
 .modalWindow {
-    position: absolute;
+    position: fixed;
     width: 80%;
     margin: 0 auto;
-    top: 50px;
+    top: 0;
     z-index: 2;
     padding: 100px;
     background-color:rgba(27,94,32, 1);
+    height: 100%;
+    overflow: auto;
     div {
         border: none;
     }
@@ -57,10 +65,32 @@
         font-size: 2rem;
     }
     .modalWindowContent {
+        margin-bottom: 20px;
         div {
             float: left;
-            width: 45%;
+            width: calc(45%);
             margin-right: 25px;
+            h3 {
+                text-align: center;
+                margin-top: 10px;
+                margin-bottom: 20px;
+                text-shadow: 2px 2px 1px black;
+            }
+            div.soundDisplay {
+                background-color: rgba(0, 0, 0, 0);
+                background-image: none;
+                box-shadow: none;
+                display: flex;
+                width: 100%;
+                
+            }
+            iframe {
+                border: 0;
+                width: 80%;
+                margin: 0 auto;
+                background-color: rgba(255, 255, 255, 0.3);
+                padding: 10px 5px;
+            }
         }
     }
 }
