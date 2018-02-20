@@ -324,6 +324,10 @@ userInput.events = function () {
     $('.fa-times').on('click', function () {
         $('.modalWindow').fadeOut();
     });
+    $('input[type=text]').on('focus', function () {
+        $(this).val('');
+
+    });
     userInput.showBirds();
     userInput.smore();
 }
@@ -337,9 +341,5 @@ $(function () {
         event.preventDefault();
         // Retrieve user input
         userInput.retrieveInputValues();
-    })
-    $('input[type=text]').on('focus', function () {
-        $(this).val('');
-
     })
 });
