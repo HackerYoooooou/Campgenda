@@ -407,17 +407,17 @@ form {
     padding: 10px; }
   .modalWindow .modalWindowContent div {
     width: 100%;
-    margin-bottom: 30px; } }
+    margin-bottom: 30px; }
+  form {
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center; } }
 
 /* Landscape phone to portrait tablet */
 @media (max-width: 768px) {
   .destinationOption div {
     -ms-flex-preferred-size: 100%;
     flex-basis: 100%; }
-  form {
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
-    justify-content: center; }
   input[name="city"] {
     max-width: 60%; }
   input[select="province"] {
