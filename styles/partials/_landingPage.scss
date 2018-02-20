@@ -9,12 +9,14 @@ form {
     select,
     p {
         margin: 0 10px 50px 0;
+        font-size: 2rem;
     }
     select {
         padding: 10px 0;
     }
-    p {
-        font-size: 2rem;
+    input[name="city"],
+    select[name="province"] {
+        max-width: 150px;
     }
     input[name="address"]{
         min-width: 450px;
