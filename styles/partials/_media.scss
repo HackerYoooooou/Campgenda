@@ -16,9 +16,6 @@
                 margin-bottom: 30px;
             }
         }
-        form {
-            justify-content: center;
-        }
     }
 
     /* Landscape phone to portrait tablet */
@@ -33,11 +30,18 @@
             max-width: 60%;
             text-align: right;
         }
+        form p,
+        form select {
+            margin-right: 10px;
+        }
     }
 
 
     /* Landscape phones and down */
     @media (max-width: 574px) {
+        .destinationOption div {
+            margin-right: 20px;
+        }
         header img {
             width: 90%;
             margin: 0 auto;
@@ -48,5 +52,20 @@
         .modalWindow {
             width: 100%;
             padding: 0;
-        }        
+            left:0;
+            top: 0;
+            .modalWindowContent {
+                margin-top: 60px;
+            }
+        }       
+        form {
+            flex-direction: column;
+            align-items: center;
+            p,
+            select,
+            input {
+                margin-bottom: 10px;
+                width: 100%;
+            }
+        } 
     }

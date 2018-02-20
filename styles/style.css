@@ -279,11 +279,13 @@ form {
   form input,
   form select,
   form p {
-    margin: 0 10px 50px 0; }
+    margin: 0 10px 50px 0;
+    font-size: 2rem; }
   form select {
     padding: 10px 0; }
-  form p {
-    font-size: 2rem; }
+  form input[name="city"],
+  form select[name="province"] {
+    max-width: 150px; }
   form input[name="address"] {
     min-width: 450px; }
   form input[type="submit"] {
@@ -407,11 +409,7 @@ form {
     padding: 10px; }
   .modalWindow .modalWindowContent div {
     width: 100%;
-    margin-bottom: 30px; }
-  form {
-    -webkit-box-pack: center;
-    -ms-flex-pack: center;
-    justify-content: center; } }
+    margin-bottom: 30px; } }
 
 /* Landscape phone to portrait tablet */
 @media (max-width: 768px) {
@@ -422,10 +420,15 @@ form {
     max-width: 60%; }
   input[select="province"] {
     max-width: 60%;
-    text-align: right; } }
+    text-align: right; }
+  form p,
+  form select {
+    margin-right: 10px; } }
 
 /* Landscape phones and down */
 @media (max-width: 574px) {
+  .destinationOption div {
+    margin-right: 20px; }
   header img {
     width: 90%;
     margin: 0 auto; }
@@ -433,4 +436,21 @@ form {
     min-width: initial; }
   .modalWindow {
     width: 100%;
-    padding: 0; } }
+    padding: 0;
+    left: 0;
+    top: 0; }
+    .modalWindow .modalWindowContent {
+      margin-top: 60px; }
+  form {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center; }
+    form p,
+    form select,
+    form input {
+      margin-bottom: 10px;
+      width: 100%; } }
